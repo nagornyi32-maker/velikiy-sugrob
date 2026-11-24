@@ -891,7 +891,7 @@ const UPG={
  luck:{n:'Удача',ic:'u-luck',d:l=>`Шанс удачного удара <b>${3+l}%</b>`,max:15,cost:l=>900*Math.pow(1.6,l),tab:'tool'},
  thermos:{n:'Термос',ic:'u-thermos',d:l=>`Комбо дольше и до <b>×${f2(1.5+l*.1)}</b>`,max:8,cost:l=>1500*Math.pow(2,l),tab:'tool'},
  elves:{n:'Эльфы',ic:'u-elf',d:l=>`Копают вашим инструментом: <b>${l}</b> в деле${elfRate()>0?` · сейчас ≈${fmt(elfRate())}/мин`:''}`,max:12,cost:l=>2500*Math.pow(2.6,l),tab:'help'},
- skill:{n:'Эльфийская сноровка',ic:'u-skill',d:l=>`Эльфы быстрее и сильнее <b>+${l*12}%</b>`,max:15,cost:l=>3000*Math.pow(1.7,l),tab:'help'},
+ skill:{n:'Эльфийская сноровка',ic:'u-skill',d:l=>{const t=elfTier(),nx=ELF_T[t+1];return`Эльфы быстрее и сильнее <b>+${l*12}%</b> · сейчас: ${ELF_T[t].n.toLowerCase()}${nx?`<br>С ${nx.lv} ур.: ${nx.n.toLowerCase()}`:''}`},max:15,cost:l=>3000*Math.pow(1.7,l),tab:'help'},
  lantern:{n:'Фонарь',ic:'u-lantern',d:l=>`Подарки светятся за <b>${[6,10,15,21,28,36][l]} м</b>`,max:5,cost:l=>1500*Math.pow(6,l),tab:'help'},
  sled:{n:'Санки',ic:'u-sled',d:l=>`Снежинок за кубик <b>×${f2(Math.pow(1.12,l))}</b>`,max:20,cost:l=>1000*Math.pow(1.85,l),tab:'help'},
  drill:{n:'Бур',ic:'u-pow',d:l=>`По льду и фирну сильнее <b>+${l*25}%</b>`,max:15,cost:l=>2000*Math.pow(1.6,l),tab:'tool'},
@@ -1014,9 +1014,9 @@ function makeElf(){const g=new THREE.Group(),body=new THREE.Group();g.add(body);
   const AL=arm(-1),AR=arm(1);const sh=makeShovel(TOOLS[1],.55);sh.rotation.set(Math.PI/2,0,0);sh.position.set(-.32,-.38,.05);AR.add(sh);bx(AL,.1,.12,.1,glowM(0xffc26a),0,-.46,.06,false);
   g.traverse(o=>{if(o.isMesh)o.castShadow=true});g.scale.setScalar(1.45);scene.add(g);return{g,body,head,hat,tip,L:Lg,R:Rg,AL,AR,sh}}
 const elves=[];
-function syncElves(){while(elves.length<L('elves')){const m=makeElf();const a=Math.random()*6.28,r=20+Math.random()*30;const e={m,x:Math.cos(a)*r,z:Math.sin(a)*r,y:0,state:'walk',t:0,strokes:0,phase:Math.random()*5,yaw:0,cheer:0};e.y=groundY(e.x,e.z);elfTarget(e);elves.push(e)}}
+function syncElves(){while(elves.length<L('elves')){const m=makeElfOf(elfTier());const a=Math.random()*6.28,r=20+Math.random()*30;const e={m,x:Math.cos(a)*r,z:Math.sin(a)*r,y:0,state:'walk',t:0,strokes:0,phase:Math.random()*5,yaw:0,cheer:0,tier:elfTier()};e.y=groundY(e.x,e.z);elfTarget(e);elves.push(e)}}
 function elfTarget(e){const fx=CAM.target.x,fz=CAM.target.z;for(let k=0;k<30;k++){const a=Math.random()*6.28,r=3+Math.random()*24,x=clamp(fx+Math.cos(a)*r,-100,100),z=clamp(fz+Math.sin(a)*r,-100,100);if(groundY(x,z)>BASE+1&&Math.hypot(x,z)<DIG_R-2){e.tx=x;e.tz=z;break}}e.state='walk';e.strokes=3+Math.floor(Math.random()*4)}
-function updElves(dt,t){const sk=1+.12*L('skill');for(const e of elves){const m=e.m;e.phase+=dt;
+function updElves(dt,t){const sk=1+.12*L('skill');refreshElves();for(const e of elves){const m=e.m;e.phase+=dt;if(m.veh){if(e.cheer>0)e.cheer=0;updVehicle(e,dt,t,sk);continue}
   if(e.cheer>0){e.cheer-=dt;const j=Math.abs(Math.sin(e.cheer*9))*.5;m.g.position.set(e.x,e.y+j,e.z);m.AL.rotation.x=m.AR.rotation.x=-2.8;m.AL.rotation.z=.4;m.AR.rotation.z=-.4;m.tip.rotation.x=Math.sin(t*20)*.4;continue}
   m.AL.rotation.z=m.AR.rotation.z=0;
   if(e.state==='walk'){const dx=e.tx-e.x,dz=e.tz-e.z,d=Math.hypot(dx,dz);
@@ -1027,9 +1027,76 @@ function updElves(dt,t){const sk=1+.12*L('skill');for(const e of elves){const m=
     let a;if(p<.45){a=lerp(.2,-2.6,ease(p/.45));m.body.rotation.x=lerp(0,-.15,p/.45)}else if(p<.6){a=lerp(-2.6,-.2,easeIn((p-.45)/.15));m.body.rotation.x=lerp(-.15,.35,(p-.45)/.15)}else{a=lerp(-.2,-1.2,easeOut((p-.6)/.4));m.body.rotation.x=lerp(.35,0,(p-.6)/.4)}
     m.AR.rotation.x=a;m.AL.rotation.x=a*.8;m.tip.rotation.x=-a*.2;m.head.rotation.y=0;
     const prev=((e.t-dt*Math.min(1.8,sk))%iv)/iv;if(prev<.6&&p>=.6){const fx=e.x+Math.sin(e.yaw)*.7,fz=e.z+Math.cos(e.yaw)*.7,vx=clamp(toVX(fx),0,NX-1),vz=clamp(toVZ(fz),0,NZ-1),vy=top[vz*NX+vx]-1;
-      const TT=tool();digAt(vx+.5,vy+.3,vz+.5,Math.max(1.3,TT.r*.65),Math.max(8,Math.round(TT.dmg*.75*sk*(1+.15*CL('whistle')))),{elf:true,toss:[Math.cos(e.yaw)*(Math.random()<.5?1:-1),-Math.sin(e.yaw)]});
+      const TT=tool();digAt(vx+.5,vy+.3,vz+.5,Math.max(1.3,TT.r*.65)*(1+.12*(m.tier||0)),Math.max(8,Math.round(TT.dmg*.75*sk*(1+.15*CL('whistle')))),{elf:true,toss:[Math.cos(e.yaw)*(Math.random()<.5?1:-1),-Math.sin(e.yaw)]});
       e.strokes--;if(e.strokes<=0||vy<3)elfTarget(e)}}
+  if(m.blower){m.AR.rotation.x=m.AL.rotation.x=-1.25;m.AR.rotation.z=m.AL.rotation.z=0;m.body.rotation.x=.1;m.blower.rotor.rotation.x-=dt*(e.state==='dig'?26:6);if(e.state==='dig')sprayFrom(m,m.blower.chute,.7,false)}
   e.y+=(groundY(e.x,e.z)-e.y)*Math.min(1,dt*10);m.g.position.set(e.x,e.y,e.z);m.g.rotation.y+=((e.yaw-m.g.rotation.y+Math.PI*3)%(Math.PI*2)-Math.PI)*Math.min(1,dt*8)}}
+/* ================= ЭЛЬФИЙСКИЙ АВТОПАРК: от лопатки до роторного снегоочистителя ================= */
+const ELF_T=[{lv:0,n:'Эльф с лопаткой'},{lv:2,n:'Эльф в каске с совковой лопатой'},{lv:4,n:'Эльф с лопатой-движком'},{lv:6,n:'Эльф со снегоуборщиком'},
+  {lv:8,n:'Эльф на мини-тракторе'},{lv:10,n:'Эльф на снегоходе с отвалом'},{lv:12,n:'Эльф на бульдозере'},{lv:14,n:'Эльф на роторном снегоочистителе'}];
+const elfTier=()=>{let t=0;ELF_T.forEach((x,i)=>{if(L('skill')>=x.lv)t=i});return t};
+const ELF_FRONT=[.7,.75,.8,1.6,2.4,2.4,3.6,5.2],ELF_SPD=[1,1,1,1.05,1.5,2,1.4,1.3];
+function miniElf(){const d=new THREE.Group(),green=M(0x2f7a55),skin=M(0xf2cfae),red=M(0xc8362f);bx(d,.46,.44,.34,green,0,.22,0);bx(d,.12,.32,.12,green,-.28,.3,.12).rotation.x=-1.1;bx(d,.12,.32,.12,green,.28,.3,.12).rotation.x=-1.1;
+  const h=new THREE.Group();h.position.y=.46;d.add(h);bx(h,.38,.34,.34,skin,0,.17,0);for(const ex of [-.08,.08])bx(h,.05,.07,.02,0x1a1a24,ex,.2,.175,false);bx(h,.42,.08,.38,0xf5f8fc,0,.36,0);bx(h,.34,.16,.3,red,0,.48,0);bx(h,.22,.14,.2,red,0,.62,-.04);bx(h,.11,.11,.11,0xf5f8fc,0,.72,-.1);return d}
+const wheelGeo=r=>{const g=new THREE.CylinderGeometry(r,r,1,10);g.rotateZ(Math.PI/2);return g};
+function makeVehicle(tier){const g=new THREE.Group(),V={g,wheels:[],treads:[],blade:null,rotor:null,chute:null,ex:null,veh:true,tier};
+  const tire=M(0x22252c,{roughness:.9}),rim=M(0xb8bcc6,{metalness:.6,roughness:.4}),glass=new THREE.MeshStandardMaterial({color:0x9ac8ff,transparent:true,opacity:.35,roughness:.1});
+  const wheel=(r,w,x,y,z)=>{const m=new THREE.Mesh(wheelGeo(r),tire);m.scale.set(w,1,1);m.position.set(x,y,z);m.castShadow=true;g.add(m);const c=new THREE.Mesh(new THREE.BoxGeometry(w*1.05,r*.6,r*.6),rim);m.add(c);c.scale.set(1/w,1,1);V.wheels.push({m,r});return m};
+  if(tier===4){const body=M(0x3a8a4a,{roughness:.5}),y=M(0xf2c230,{roughness:.5});
+    bx(g,.9,.55,1.5,body,0,.75,0);bx(g,.8,.45,.7,body,0,.8,.9);bx(g,.5,.08,.5,M(0x2a2a30),0,1.08,.9);
+    for(const sx of [-.42,.42])for(const sz of [-.32,.32])bx(g,.06,.9,.06,M(0x2a2a30),sx,1.45,-.25+sz);bx(g,1,.08,1,body,0,1.92,-.25);
+    wheel(.48,.32,-.6,.48,-.45);wheel(.48,.32,.6,.48,-.45);wheel(.28,.22,-.5,.28,.8);wheel(.28,.22,.5,.28,.8);
+    const bl=new THREE.Group();bl.position.set(0,.3,1.5);g.add(bl);bx(bl,1.9,.55,.12,y,0,.2,0);bx(bl,.08,.08,.5,M(0x2a2a30),-.4,.3,-.3);bx(bl,.08,.08,.5,M(0x2a2a30),.4,.3,-.3);V.blade=bl;
+    bx(g,.08,.5,.08,M(0x2a2a30),.3,1.3,.95);V.ex=[.3,1.6,.95];const d=miniElf();d.position.set(0,.85,-.3);g.add(d);g.scale.setScalar(1.6)}
+  else if(tier===5){const body=M(0xf2c230,{roughness:.4}),blk=M(0x22252c),org=M(0xe8682a,{roughness:.5});
+    bx(g,.8,.4,1.6,body,0,.55,0);bx(g,.7,.35,.7,body,0,.75,.55);bx(g,.6,.3,.06,glass,0,1.05,.85).rotation.x=-.4;bx(g,.5,.18,.8,blk,0,.85,-.35);
+    bx(g,.6,.35,1.5,blk,0,.25,-.25);for(let i=0;i<6;i++){const t=bx(g,.62,.06,.12,M(0x3a3e48),0,.08,-.9+i*.26);V.treads.push(t)}
+    for(const sx of [-.32,.32]){bx(g,.12,.06,1.1,blk,sx,.06,.75);bx(g,.06,.35,.06,blk,sx,.25,.75)}
+    const bl=new THREE.Group();bl.position.set(0,.2,1.55);g.add(bl);bx(bl,1.8,.5,.1,org,0,.2,0);bx(bl,.08,.08,.45,blk,0,.3,-.25);V.blade=bl;
+    const d=miniElf();d.position.set(0,.85,-.35);g.add(d);g.scale.setScalar(1.6)}
+  else if(tier===6){const org=M(0xf08a1e,{roughness:.45}),blk=M(0x22252c),gr=M(0x3a3e48),st=M(0x8a8f9a,{metalness:.6,roughness:.4});
+    bx(g,1.2,.75,1.9,org,0,.95,-.1);bx(g,1.1,.3,.7,org,0,1.45,.45);
+    for(const sx of [-.78,.78]){bx(g,.38,.6,2.3,blk,sx,.35,0);for(let i=0;i<9;i++){const t=bx(g,.42,.08,.16,gr,sx,.66,-1.05+i*.26);V.treads.push(t)}for(const sz of [-.8,0,.8])wheel(.24,.3,sx,.32,sz)}
+    bx(g,.9,.8,.9,glass,0,1.7,-.45);bx(g,1,.08,1,org,0,2.14,-.45);for(const sx of [-.45,.45])for(const sz of [-.9,0])bx(g,.06,.8,.06,org,sx,1.7,sz);
+    const bl=new THREE.Group();bl.position.set(0,.2,1.55);g.add(bl);bx(bl,2.3,.95,.16,st,0,.45,0);bx(bl,2.3,.12,.24,M(0xd8dce4,{metalness:.7,roughness:.3}),0,0,.06);bx(bl,.14,.14,1,org,-.6,.55,-.5).rotation.x=.4;bx(bl,.14,.14,1,org,.6,.55,-.5).rotation.x=.4;V.blade=bl;
+    bx(g,.12,.7,.12,blk,.4,1.75,.4);V.ex=[.4,2.15,.4];const d=miniElf();d.position.set(0,1.32,-.45);g.add(d);g.scale.setScalar(1.75)}
+  else if(tier===7){const red=M(0xc8362f,{roughness:.45}),blk=M(0x22252c),y=M(0xf2c230,{roughness:.4}),st=M(0x9aa0aa,{metalness:.6,roughness:.35});
+    bx(g,1.5,1,3.2,red,0,1.15,-.4);bx(g,1.5,1,1.2,red,0,2.1,.6);bx(g,1.3,.6,.06,glass,0,2.25,1.22);bx(g,.06,.55,1,glass,-.76,2.2,.6);bx(g,.06,.55,1,glass,.76,2.2,.6);
+    for(const sz of [-1.5,-.5,.8])for(const sx of [-.82,.82])wheel(.5,.36,sx,.5,sz);
+    const hs=new THREE.Group();hs.position.set(0,.75,1.85);g.add(hs);bx(hs,2.4,1.3,.9,y,0,0,0);bx(hs,2.2,1.1,.1,blk,0,0,.46);
+    const ro=new THREE.Group();ro.position.set(0,0,.5);hs.add(ro);for(let i=0;i<8;i++){const b=bx(ro,2.1,.12,.12,st,0,0,0);b.position.set(0,Math.cos(i*.785)*.42,Math.sin(i*.785)*.42*.4);b.rotation.y=(i%2?.3:-.3)}bx(ro,2.2,.16,.16,st,0,0,0);V.rotor=ro;
+    const ch=new THREE.Group();ch.position.set(.4,1.6,1.6);g.add(ch);bx(ch,.36,1.1,.36,y,0,.5,0);const hd=bx(ch,.36,.3,.8,y,0,1.1,.3);hd.rotation.x=-.5;ch.rotation.y=-1.1;V.chute=ch;
+    bx(g,.14,.8,.14,blk,-.55,2.9,-.2);V.ex=[-.55,3.35,-.2];const d=miniElf();d.position.set(0,1.62,.4);g.add(d);g.scale.setScalar(1.8)}
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true});scene.add(g);return V}
+function makeElfOf(tier){if(tier>=4)return makeVehicle(tier);const m=makeElf();m.tier=tier;
+  if(tier>=1){m.hat.visible=false;const hh=new THREE.Group();hh.position.set(0,.36,0);m.head.add(hh);bx(hh,.46,.2,.42,M(0xf2c230,{roughness:.4}),0,.02,0);bx(hh,.52,.05,.5,M(0xf2c230,{roughness:.4}),0,-.07,.04);bx(hh,.08,.08,.03,glowM(0xfff2c0),0,.04,.22,false)}
+  if(tier>=1){m.AR.remove(m.sh);let sh;if(tier===1)sh=makeShovel(TOOLS[Math.min(4,TOOLS.length-1)],.62);else{sh=new THREE.Group();const inner=new THREE.Group();sh.add(inner);bx(inner,.07,1.5,.07,M(0x8a5a36),0,.95,0);bx(inner,1.1,.5,.05,M(0x3a8ad8,{roughness:.4}),0,.2,.02);bx(inner,1.1,.06,.12,M(0xd8dce4,{metalness:.6}),0,-.04,.05);sh.scale.setScalar(.6)}
+    sh.rotation.set(Math.PI/2,0,0);sh.position.set(-.32,-.38,.05);m.AR.add(sh);m.sh=sh}
+  if(tier===3){const bw=new THREE.Group();bw.position.set(0,0,.95);m.g.add(bw);const red=M(0xd8463e,{roughness:.45}),blk=M(0x22252c);
+    bx(bw,.8,.5,.6,red,0,.42,.1);bx(bw,.9,.45,.3,blk,0,.25,.5);const ro=new THREE.Group();ro.position.set(0,.25,.55);bw.add(ro);for(let i=0;i<4;i++){const b=bx(ro,.8,.06,.06,M(0x9aa0aa,{metalness:.6}),0,0,0);b.position.set(0,Math.cos(i*1.57)*.14,Math.sin(i*1.57)*.08)}
+    const ch=new THREE.Group();ch.position.set(.25,.65,.3);bw.add(ch);bx(ch,.14,.45,.14,red,0,.2,0);bx(ch,.14,.12,.3,red,0,.45,.1).rotation.x=-.5;ch.rotation.y=-1.2;
+    for(const sx of [-.3,.3])bx(bw,.05,.6,.05,blk,sx,.75,-.35).rotation.x=-.6;bx(bw,.65,.05,.05,blk,0,1.0,-.55);
+    for(const sx of [-.42,.42]){const w=new THREE.Mesh(wheelGeo(.17),M(0x22252c));w.scale.set(.12,1,1);w.position.set(sx,.17,0);bw.add(w)}
+    m.sh.visible=false;m.blower={g:bw,rotor:ro,chute:ch}}
+  return m}
+function refreshElves(){const t=elfTier();for(const e of elves){if(e.tier===t)continue;scene.remove(e.m.g);e.m=makeElfOf(t);e.tier=t;e.m.g.position.set(e.x,e.y,e.z)}}
+function sprayFrom(V,obj,amt,far){if(Math.random()>amt)return;const p=new THREE.Vector3(0,far?1.2:.5,far?.5:.15).applyMatrix4(obj.matrixWorld),d=new THREE.Vector3(0,0,1).transformDirection(obj.matrixWorld);
+  const s=(far?9:5)*(.8+Math.random()*.4);spawn({x:p.x,y:p.y,z:p.z,vx:d.x*s+(Math.random()-.5),vy:(far?6:3)+Math.random()*2,vz:d.z*s+(Math.random()-.5),g:9,drag:.6,life:1.4,s:far?6:4,a:.9,c:WHITE})}
+function updVehicle(e,dt,t,sk){const V=e.m,T=V.tier,spd=ELF_SPD[T]*sk;let moving=0;
+  if(e.state==='walk'){const dx=e.tx-e.x,dz=e.tz-e.z,d=Math.hypot(dx,dz);if(d<.5){e.state='dig';e.t=0}else{const s=Math.min(2.6*spd*dt,d);e.x+=dx/d*s;e.z+=dz/d*s;e.yaw=Math.atan2(dx,dz);moving=s/dt}
+    V.g.children.forEach(()=>{});if(V.blade)V.blade.position.y+=((T===4||T===5?.45:.5)-V.blade.position.y)*Math.min(1,dt*6)}
+  else{e.t+=dt*Math.min(1.8,sk);const iv=T>=6?1.4:1.15,p=(e.t%iv)/iv;const push=p>.3&&p<.65;
+    if(push){const s=dt*(T>=6?1.6:2.2)*spd;const nx=e.x+Math.sin(e.yaw)*s,nz=e.z+Math.cos(e.yaw)*s;if(Math.hypot(nx,nz)<DIG_R-2){e.x=nx;e.z=nz}moving=s/dt}
+    if(V.blade)V.blade.position.y+=((push?.12:.4)-V.blade.position.y)*Math.min(1,dt*8);V.g.rotation.x=push?-.03:0;
+    const prev=((e.t-dt*Math.min(1.8,sk))%iv)/iv;if(prev<.6&&p>=.6){const F=ELF_FRONT[T],fx=e.x+Math.sin(e.yaw)*F,fz=e.z+Math.cos(e.yaw)*F,vx=clamp(toVX(fx),0,NX-1),vz=clamp(toVZ(fz),0,NZ-1),vy=top[vz*NX+vx]-1;
+      const TT=tool();digAt(vx+.5,vy+.3,vz+.5,Math.max(1.6,TT.r*.65)*(1+.12*T),Math.max(8,Math.round(TT.dmg*.75*sk*(1+.15*CL('whistle'))*(1+.1*T))),{elf:true,toss:[Math.cos(e.yaw)*(Math.random()<.5?1:-1),-Math.sin(e.yaw)]});
+      CAM.shake=Math.max(CAM.shake,T>=6&&Math.hypot(e.x-CAM.target.x,e.z-CAM.target.z)<30?.08:0);e.strokes--;if(e.strokes<=0||vy<3)elfTarget(e)}
+    if(V.rotor){V.rotor.rotation.x-=dt*22;sprayFrom(V,V.chute,.9,true)}}
+  if(V.rotor&&e.state==='walk')V.rotor.rotation.x-=dt*4;
+  V.wheels.forEach(w=>w.m.rotation.x+=moving*dt/w.r);V.treads.forEach((tr,i)=>{tr.material.color.setHex(((Math.floor(t*moving*2)+i)%2)?0x3a3e48:0x2a2e36)});
+  if(V.ex&&Math.random()<dt*(e.state==='dig'?6:2)){const p=new THREE.Vector3(...V.ex).applyMatrix4(V.g.matrixWorld);spawn({x:p.x,y:p.y,z:p.z,vx:(Math.random()-.5)*.4,vy:1.4,vz:(Math.random()-.5)*.4,g:-.3,drag:.8,life:1.6,s:7,a:.35,grow:1.5,c:[.55,.55,.6]})}
+  const bob=moving>0?Math.sin(t*18)*.03:0;e.y+=(groundY(e.x,e.z)-e.y)*Math.min(1,dt*8);V.g.position.set(e.x,e.y+bob,e.z);V.g.rotation.y+=((e.yaw-V.g.rotation.y+Math.PI*3)%(Math.PI*2)-Math.PI)*Math.min(1,dt*4)}
+
 
 /* ================= СНЕЖОК ================= */
 /* ---- модель питомца из настроек ---- */
@@ -1274,7 +1341,7 @@ let caseState=null;
 function openCase(tier){if(!S.sack[tier])return;const box=tier,R=RAR[box];closeSackOnly();
   caseState={box,phase:'ready'};$('#caseTitle').textContent=R.n+' подарок';$('#caseSub').textContent='Подарок прилетел — откройте его';
   const gb=$('#gdrop');gb.style.display='';
-  $('#strip').classList.remove('on');$('#caseRes').innerHTML='';$('#caseBtns').innerHTML='<button class="btn" id="caseBtn">Открыть</button>';$('#caseBtn').onclick=roll;gb.querySelector('.gz').onclick=roll;openModal('#mCase');requestAnimationFrame(()=>GD&&GD.prepare(R,S.sack[tier]-1))}
+  $('#strip').classList.remove('on');$('#caseRes').innerHTML='';$('#caseBtns').innerHTML='<button class="btn" id="caseBtn">Открыть</button>';gb.style.display='none';openModal('#mCase');roll()}
 const CARDW=124;
 function roll(){if(!caseState||caseState.phase!=='ready')return;caseState.phase='rolling';const box=caseState.box==='star'?'l':caseState.box;
   const gb=$('#gdrop');$('#caseSub').textContent='Что же внутри…';$('#caseBtns').innerHTML='';
@@ -1286,7 +1353,7 @@ function roll(){if(!caseState||caseState.phase!=='ready')return;caseState.phase=
     const an=tr.animate([{transform:'translateX(0px)'},{transform:`translateX(${endX}px)`}],{duration:5600,easing:'cubic-bezier(.06,.7,.12,1)',fill:'forwards'});caseState.an=an;
     $('#caseBtn').onclick=()=>an.finish();let lastIdx=-1;
     const tickLoop=()=>{if(!caseState||caseState.phase!=='rolling')return;const m=new DOMMatrix(getComputedStyle(tr).transform);const idx=Math.floor((-m.m41+58)/CARDW);if(idx!==lastIdx){lastIdx=idx;rollTick(Math.min(1,idx/WIN))}requestAnimationFrame(tickLoop)};tickLoop();
-    an.onfinish=()=>finishRoll()};if(GD)GD.drop(go);else setTimeout(go,300)}
+    an.onfinish=()=>finishRoll()};go()}
 function tone2(){if(!okS())return;const t=AC.currentTime;nz(t,{f:600,q:.8,lpf:2500,a:.01,d:.25,v:.08});tone(784,t+.05,.04,.8,sfx)}
 function finishRoll(){if(!caseState||caseState.phase!=='rolling')return;caseState.phase='done';const w=caseState.win,R=RAR[w.r];
   const card=$('#track').children[39];if(card)card.classList.add('win');fanfare(w.r);
@@ -1892,7 +1959,6 @@ const MO=(()=>{const reduce=matchMedia('(prefers-reduced-motion: reduce)').match
     else{H.t=baseH;tune(H,...TK.close);panel.classList.remove('on');after(.45,()=>{if(!expanded){dock.classList.remove('open');dock.style.height=''}})}pop(active).v-=2.4}
   // клики: первый тап по кнопке — пилюля едет и окно открывается как раньше; повторный тап по активной — док раскрывается в карточку
   dock.addEventListener('click',e=>{const b=e.target.closest('.db');if(!b||b.id.startsWith('dRot')||b.dataset.direct)return;
-    if(b===active&&SUM[b.id]&&!expanded&&!b.dataset.fresh){e.stopImmediatePropagation();e.preventDefault();setExpanded(true);return}
     if(expanded){setExpanded(false)}setActive(b);b.dataset.fresh=1;after(.05,()=>delete b.dataset.fresh)},true);
   document.addEventListener('pointerdown',e=>{if(expanded&&!dock.contains(e.target))setExpanded(false)});addEventListener('keydown',e=>{if(e.key==='Escape'&&expanded)setExpanded(false)});
   // проведите пальцем по доку — пилюля тянется за ним как резинка
@@ -2035,7 +2101,7 @@ $('#start').onclick=()=>{initAudio();
   if(!hadSave&&!S.petMade){intro.classList.add('hide');openPetEditor(true,()=>{S.petMade=true;save();startRoom(()=>beginGame(true))})}else beginGame(false)};
 $('#roomGo').onclick=endRoom;$('#roomSkip').onclick=endRoom;
 requestAnimationFrame(frame);setTimeout(()=>$('#load').classList.add('hide'),200);
-window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
+window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
 </script>
 <div id="roomUI"><div class="vign"></div><p id="roomSub"></p><button class="btn" id="roomGo">Идти копать</button><button id="roomSkip">Пропустить</button></div><div id="roomFade"></div>
 </body>
