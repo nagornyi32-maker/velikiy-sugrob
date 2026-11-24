@@ -386,6 +386,23 @@ body{letter-spacing:-.005em}
 .find{position:fixed;z-index:8;pointer-events:none;font-size:22px;transform:translate(-50%,-50%)}
 body.zen .ui:not(#evt){opacity:0!important;pointer-events:none!important}body.zen #dock,body.zen .snd{opacity:.0}
 body.zen .snd.ui{opacity:.35!important;pointer-events:auto!important}
+
+/* v13: ни одного тёмного фона рядом с красным */
+#combo{background:rgba(251,247,240,.92)!important;border:0!important;color:var(--berry)!important}
+.bet.on{background:rgba(201,54,62,.08);border-color:var(--berry);color:var(--cran)}
+.chip.on{background:rgba(201,54,62,.08);border-color:var(--berry);color:var(--cran)}
+.buy{background:var(--pine)!important;color:#fff!important;box-shadow:none!important;font-weight:600}
+.buy[disabled],.buy.no{background:var(--fill2)!important;color:var(--dim)!important}
+.it.big{background:#fff;border:0}
+.pv{background:radial-gradient(circle at 50% 35%,#f4f8fd,#d6e2f0 75%)}
+.face.img{background-color:#e6eef8}
+.slotm{background:linear-gradient(#fbf6ec,#f1e6d2);box-shadow:inset 0 0 0 2px #e6d6b8}
+.reel{box-shadow:inset 0 6px 10px rgba(43,36,32,.12),inset 0 -6px 10px rgba(43,36,32,.12)}
+#mCasino .mc{background:var(--panel)!important}
+#roomSkip{background:rgba(255,255,255,.8);color:#2b2420}
+.db[data-t]:hover:after{background:#fff;color:var(--snow)}
+#vig{background:radial-gradient(ellipse at 50% 45%,transparent 66%,rgba(40,48,70,.18) 100%)}
+.modal{background:rgba(120,130,150,.25)}
 </style>
 </head>
 <body class="intro">
@@ -1546,7 +1563,7 @@ function makeSleigh(){const g=new THREE.Group();const red=0xb3262a;
   g.traverse(o=>{if(o.isMesh)o.castShadow=true});g.scale.setScalar(1.6);scene.add(g);return{g,deer,active:false,t:0}}
 function launchSleigh(){if(!sleigh)sleigh=makeSleigh();const s=sleigh;s.active=true;s.caught=false;s.t=0;s.dur=11;s.g.visible=true;
   const rx=Math.cos(CAM.ang),rz=-Math.sin(CAM.ang),span=(VH0/CAM.zoom)*innerWidth/innerHeight*.7;
-  s.a=new THREE.Vector3(CAM.target.x-rx*span,0,CAM.target.z-rz*span);s.b=new THREE.Vector3(CAM.target.x+rx*span,0,CAM.target.z+rz*span);s.h=CAM.target.y+(VH0/CAM.zoom)*.28;
+  s.a=new THREE.Vector3(CAM.target.x-rx*span,0,CAM.target.z-rz*span);s.b=new THREE.Vector3(CAM.target.x+rx*span,0,CAM.target.z+rz*span);s.h=CAM.target.y+(VH0/CAM.zoom)*.28;{let mx=0;for(let i=0;i<=32;i++){const q=new THREE.Vector3().lerpVectors(s.a,s.b,i/32);for(const o of [-4,0,4])mx=Math.max(mx,groundY(q.x+o,q.z+o))}s.h=Math.max(s.h,mx+12)}
   bells();banner('🛷','Сани Деда Мороза! <b>Нажмите на них</b>, пока не улетели')}
 function updSleigh(dt,t){if(!sleigh||!sleigh.active)return;const s=sleigh;s.t+=dt;const p=s.t/s.dur;if(p>=1){s.active=false;s.g.visible=false;sleighBub.style.display='none';return}
   const pos=new THREE.Vector3().lerpVectors(s.a,s.b,p);pos.y=s.h+Math.sin(p*Math.PI*3)*1.2;s.g.position.copy(pos);s.g.lookAt(s.b.x,pos.y,s.b.z);
