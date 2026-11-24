@@ -328,6 +328,9 @@ body.fin #tourHint{display:none}
 #roomSkip{position:absolute;right:24px;top:22px;pointer-events:auto;font-size:13px;font-weight:700;color:rgba(255,255,255,.75);padding:9px 16px;border-radius:999px;background:rgba(10,14,32,.45);backdrop-filter:blur(8px)}#roomSkip:hover{color:#fff}
 #roomFade{position:fixed;inset:0;z-index:45;background:#000;opacity:0;pointer-events:none;transition:opacity .7s}
 .vign{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.45))}
+#mMenu .mc{width:400px;text-align:center}.mlist{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.mrow{padding:13px 18px;border-radius:16px;background:rgba(255,255,255,.07);font-weight:700;font-size:14px;color:var(--snow);transition:background .2s}.mrow:hover{background:rgba(255,255,255,.13)}
+.mrow.danger{color:#ff9a8e;margin-top:10px}.btn.danger{background:linear-gradient(180deg,#f07a6e,#d8453a);color:#fff;box-shadow:0 12px 30px rgba(216,69,58,.35)}
 </style>
 </head>
 <body class="intro">
@@ -336,7 +339,7 @@ body.fin #tourHint{display:none}
 
 <div class="brand ui">Великий Сугроб<small id="festLine">Праздник</small><small id="wsLine"></small></div>
 <div class="wallet pane ui" id="wallet"><div class="co"><svg class="i"><use href="#i-flake"/></svg></div><div><b id="flakes">0</b><small id="rate">+0 в минуту</small></div></div>
-<div class="snd pane ui"><button class="ib" id="bMusic" title="Музыка" aria-label="Музыка"><svg class="i"><use href="#i-music"/></svg></button><button class="ib" id="bSound" title="Звуки" aria-label="Звуки"><svg class="i"><use href="#i-bell"/></svg></button></div>
+<div class="snd pane ui"><button class="ib" id="bMusic" title="Музыка" aria-label="Музыка"><svg class="i"><use href="#i-music"/></svg></button><button class="ib" id="bSound" title="Звуки" aria-label="Звуки"><svg class="i"><use href="#i-bell"/></svg></button><button class="ib" id="bMenu" title="Меню · Esc" aria-label="Меню"><svg class="i"><use href="#i-menu"/></svg></button></div>
 
 <section id="pet" class="pane ui" aria-label="Питомец Снежок">
   <div class="ph"><div class="face" id="face" title="Настроить питомца"><i></i><i></i><u></u></div><div><h3 id="petName">Снежок</h3><p id="mood">Помогает искать подарки</p></div></div>
@@ -391,6 +394,12 @@ body.fin #tourHint{display:none}
 <div class="modal" id="mSack"><div class="mc pane"><button class="x" data-close aria-label="Закрыть"><svg class="i"><use href="#i-x"/></svg></button><h2>Мешок подарков</h2><div class="sub" id="sackSub"></div>
   <div class="tiers" id="sackTiers"></div><div class="sackrow"><button class="btn ghost" id="sackAll">Быстро открыть обычные и редкие</button></div><div id="sackRes"></div>
   <h3 class="sec2">Талисманы</h3><div class="sub">Выпадают из подарков и работают всегда. Повторный талисман повышает уровень (до 10).</div><div class="charms" id="charmGrid"></div></div></div>
+<div class="modal" id="mMenu"><div class="mc pane"><button class="x" data-close aria-label="Закрыть"><svg class="i"><use href="#i-x"/></svg></button>
+  <div id="menuMain"><h2>Пауза</h2><div class="sub">Игра стоит, пока меню открыто.</div>
+    <div class="mlist"><button class="btn" data-close>Продолжить</button><button class="mrow" id="mMus"></button><button class="mrow" id="mSnd"></button><button class="mrow" id="mPetBtn">Мой питомец</button><button class="mrow danger" id="mReset">Начать заново</button></div></div>
+  <div id="menuConfirm" style="display:none"><h2>Начать заново?</h2><div class="sub">Сотрётся весь прогресс: снежинки, инструменты, мешок, постройки, марки и питомец. Отменить это нельзя.</div>
+    <div class="mlist"><button class="btn danger" id="mResetYes">Да, начать заново</button><button class="mrow" id="mResetNo">Отмена</button></div></div>
+</div></div>
 <div class="modal" id="mCasino"><div class="mc pane"><button class="x" data-close aria-label="Закрыть"><svg class="i"><use href="#i-x"/></svg></button><h2>Снежное казино</h2><div class="sub">Три одинаковых — большой выигрыш, пара — ставка ×1,5. Только снежинки, никаких настоящих денег.</div>
   <div class="slotm"><div class="reel"><div class="rs"></div></div><div class="reel"><div class="rs"></div></div><div class="reel"><div class="rs"></div></div></div>
   <div id="casMsg"></div><div class="bets" id="bets"></div><button class="btn" id="spinBtn">Крутить</button>
@@ -432,6 +441,7 @@ body.fin #tourHint{display:none}
  <symbol id="i-flake" viewBox="0 0 24 24"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 2 3-2M9 20l3-2 3 2M4.2 10.6l3.4-.4-1.4-3.2M19.8 13.4l-3.4.4 1.4 3.2M4.2 13.4l3.4.4-1.4 3.2M19.8 10.6l-3.4-.4 1.4-3.2"/></symbol>
  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></symbol>
  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></symbol>
+ <symbol id="i-menu" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></symbol>
  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2zM9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
  <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7c-1.5-3-5-3.5-5-1.5S10 7 12 7zM12 7c1.5-3 5-3.5 5-1.5S14 7 12 7z"/></symbol>
@@ -1194,7 +1204,7 @@ canvas.addEventListener('wheel',e=>{e.preventDefault();if(tour)return;CAM.tZoom=
 function panBy(dx,dy){const wpp=(VH0/CAM.zoom)/innerHeight,a=CAM.ang;const rx=Math.cos(a),rz=-Math.sin(a),fx=-Math.sin(a),fz=-Math.cos(a),k=1/Math.sin(CAM.elev);
   CAM.tTarget.x+=(-dx*rx+dy*fx*k)*wpp;CAM.tTarget.z+=(-dx*rz+dy*fz*k)*wpp;const l=Math.hypot(CAM.tTarget.x,CAM.tTarget.z);if(l>118){CAM.tTarget.x*=118/l;CAM.tTarget.z*=118/l}}
 const keys={};
-addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyQ')rot(-1);if(e.code==='KeyE')rot(1);if(e.code==='Escape'){if(tour)endTour();else closeModals()}if(e.code==='Space'&&started&&!modalOpen){e.preventDefault();toggleAuto()}});
+addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyQ')rot(-1);if(e.code==='KeyE')rot(1);if(e.code==='Escape'){if(room&&room.on)endRoom();else if(tour)endTour();else if(modalOpen)closeModals();else if(started)openMenu()}if(e.code==='Space'&&started&&!modalOpen){e.preventDefault();toggleAuto()}});
 addEventListener('keyup',e=>keys[e.code]=false);
 function rot(d){CAM.tAng+=d*Math.PI/2;tick()}
 $('#dRotL').onclick=()=>rot(-1);$('#dRotR').onclick=()=>rot(1);
@@ -1589,6 +1599,14 @@ function checkAch(){for(const a of ACH)if(!S.ach[a.id]&&a.f()){S.ach[a.id]=Date.
 /* ================= МОДАЛКИ, НОСОК ================= */
 let pauseT=0;function openModal(s){if(!modalOpen)pauseT=nowS();modalOpen=true;ptr.down=false;$(s).classList.add('open')}
 function unpause(){const d=nowS()-pauseT;if(d<=0||!pauseT)return;if(blizzardUntil>pauseT)blizzardUntil+=d;if(goldUntil>pauseT)goldUntil+=d;nextSleigh+=d;nextBlizz+=d;nextFw+=d;lastStrokeT+=d;nextEvt+=d;if(horoUntil>pauseT)horoUntil+=d;pauseT=0}
+function openMenu(){$('#menuMain').style.display='';$('#menuConfirm').style.display='none';$('#mMus').textContent='Музыка: '+(S.music?'вкл':'выкл');$('#mSnd').textContent='Звуки: '+(S.sound?'вкл':'выкл');openModal('#mMenu')}
+$('#bMenu').onclick=()=>{tick();if(started)openMenu()};
+$('#mMus').onclick=()=>{$('#bMusic').click();$('#mMus').textContent='Музыка: '+(S.music?'вкл':'выкл')};
+$('#mSnd').onclick=()=>{$('#bSound').click();$('#mSnd').textContent='Звуки: '+(S.sound?'вкл':'выкл')};
+$('#mPetBtn').onclick=()=>{closeModals();setTimeout(()=>openPetEditor(false),200)};
+$('#mReset').onclick=()=>{$('#menuMain').style.display='none';$('#menuConfirm').style.display=''};
+$('#mResetNo').onclick=()=>{$('#menuMain').style.display='';$('#menuConfirm').style.display='none'};
+$('#mResetYes').onclick=()=>{saveBlocked=true;['velikiy-sugrob-v8','velikiy-sugrob-v5'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});location.reload()};
 function closeModals(){if(caseState&&caseState.phase==='rolling'){caseState.an&&caseState.an.finish();return}if(caseState&&caseState.phase==='done'){claim();return}
   const wasPet=$('#mPet').classList.contains('open');document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));if(modalOpen)unpause();modalOpen=false;caseState=null;if(wasPet)closePetEditor()}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(m.id==='mCase')return;if(e.target===m||e.target.closest('[data-close]')){closeModals();tick()}}));
