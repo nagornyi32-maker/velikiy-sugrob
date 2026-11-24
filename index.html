@@ -6,7 +6,7 @@
 <title>Великий Сугроб</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#0e1530; --panel:rgba(15,21,46,.76); --panel2:rgba(24,32,64,.9); --line:rgba(43,36,32,.1); --line2:rgba(43,36,32,.18);
@@ -38,7 +38,7 @@ body.intro .ui,body.tour .ui{opacity:0;pointer-events:none}
 .snd{position:fixed;top:16px;right:20px;display:flex;gap:2px;padding:4px;border-radius:999px;z-index:6}
 .ib{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
 .ib:hover{background:rgba(43,36,32,.1)}
-.ib.off{color:var(--dim)}
+.ib.off{color:var(--dim)}.ib{position:relative}.ib.off:after{content:"";position:absolute;width:24px;height:2px;border-radius:1px;background:var(--berry);transform:rotate(-45deg)}
 
 /* питомец */
 #pet{position:fixed;left:20px;bottom:20px;width:286px;border-radius:24px;padding:14px 16px 14px 14px;z-index:6}
@@ -403,6 +403,21 @@ body.zen .snd.ui{opacity:.35!important;pointer-events:auto!important}
 .db[data-t]:hover:after{background:#fff;color:var(--snow)}
 #vig{background:radial-gradient(ellipse at 50% 45%,transparent 66%,rgba(40,48,70,.18) 100%)}
 .modal{background:rgba(120,130,150,.25)}
+
+/* записка */
+#mNote .note{display:flex;flex-direction:column;align-items:center;gap:18px;perspective:1200px}
+.paper{position:relative;width:min(440px,86vw);min-height:300px;padding:46px 44px 40px;background:#f3e7cc;color:#3b2a1c;font-family:"Caveat",cursive;
+  background-image:radial-gradient(circle at 18% 22%,rgba(160,110,50,.18),transparent 34%),radial-gradient(circle at 84% 78%,rgba(140,90,40,.16),transparent 30%),repeating-linear-gradient(#f3e7cc 0 33px,rgba(120,140,170,.22) 33px 34px);
+  clip-path:polygon(0 3%,6% 0,14% 2%,23% 0,35% 1.5%,47% 0,58% 2%,70% .5%,82% 2%,93% 0,100% 2.5%,99% 18%,100% 37%,98.5% 55%,100% 74%,99% 92%,100% 100%,88% 98.5%,76% 100%,63% 98%,50% 100%,37% 98.5%,24% 100%,12% 98%,0 100%,1% 82%,0 63%,1.5% 44%,0 26%);
+  transform-origin:50% 50%;filter:drop-shadow(0 18px 30px rgba(60,40,20,.25))}
+.paper .fold{position:absolute;left:0;right:0;top:50%;height:2px;background:linear-gradient(90deg,transparent,rgba(110,80,40,.25),transparent)}
+.paper .nt{font-size:clamp(26px,3.4vw,34px);line-height:34px;font-weight:500;transform:rotate(-1.2deg);white-space:pre-wrap}
+.paper .nn{position:absolute;right:30px;bottom:18px;font-size:20px;opacity:.55}
+#mNote.open .paper{animation:unfold 1.1s cubic-bezier(.2,.9,.25,1) both}
+@keyframes unfold{0%{transform:translateY(40px) rotateX(88deg) scale(.5);opacity:0}45%{transform:translateY(0) rotateX(60deg) scale(.9);opacity:1}100%{transform:rotateX(0) rotate(-1deg) scale(1)}}
+#mNote.open .nt{animation:ink 2.4s .7s steps(40) both}@keyframes ink{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.nbtns{display:flex;gap:10px;align-items:center}.nbtns .mrow{width:44px;height:44px;padding:0;font-size:22px;background:rgba(251,247,240,.9)}
+@media (prefers-reduced-motion:reduce){#mNote.open .paper,#mNote.open .nt{animation:none}}
 </style>
 </head>
 <body class="intro">
@@ -469,10 +484,12 @@ body.zen .snd.ui{opacity:.35!important;pointer-events:auto!important}
   <h3 class="sec2">Реликвии</h3><div class="sub">Семь уникальных сокровищ. Выпадают только из легендарных подарков — их всего четыре на самом дне горы и три в награду за финал.</div><div class="charms" id="relicGrid"></div></div></div>
 <div class="modal" id="mMenu"><div class="mc pane"><button class="x" data-close aria-label="Закрыть"><svg class="i"><use href="#i-x"/></svg></button>
   <div id="menuMain"><h2>Пауза</h2><div class="sub">Игра стоит, пока меню открыто.</div>
-    <div class="mlist"><button class="btn" data-close>Продолжить</button><button class="mrow" id="mMus"></button><button class="mrow" id="mSnd"></button><button class="mrow" id="mZen">Спокойный режим</button><button class="mrow" id="mPetBtn">Мой питомец</button><button class="mrow danger" id="mReset">Начать заново</button></div></div>
+    <div class="mlist"><button class="btn" data-close>Продолжить</button><button class="mrow" id="mMus"></button><button class="mrow" id="mSnd"></button><button class="mrow" id="mZen">Спокойный режим</button><button class="mrow" id="mPetBtn">Мой питомец</button><button class="mrow" id="mNotes" style="display:none">Записки</button><button class="mrow danger" id="mReset">Начать заново</button></div></div>
   <div id="menuConfirm" style="display:none"><h2>Начать заново?</h2><div class="sub">Сотрётся весь прогресс: снежинки, инструменты, мешок, постройки, марки и питомец. Отменить это нельзя.</div>
     <div class="mlist"><button class="btn danger" id="mResetYes">Да, начать заново</button><button class="mrow" id="mResetNo">Отмена</button></div></div>
 </div></div>
+<div class="modal" id="mNote"><div class="note"><div class="paper" id="notePaper"><i class="fold"></i><div class="nt" id="noteText"></div><div class="nn" id="noteNum"></div></div>
+  <div class="nbtns"><button class="mrow" id="notePrev" aria-label="Предыдущая">‹</button><button class="btn" id="noteClose">Сложить записку</button><button class="mrow" id="noteNext" aria-label="Следующая">›</button></div></div></div>
 <div class="modal" id="mCasino"><div class="mc pane"><button class="x" data-close aria-label="Закрыть"><svg class="i"><use href="#i-x"/></svg></button><h2>Снежное казино</h2><div class="sub">Три одинаковых — большой выигрыш, пара — ставка ×1,5. Только снежинки, никаких настоящих денег.</div>
   <div class="slotm"><div class="reel"><div class="rs"></div></div><div class="reel"><div class="rs"></div></div><div class="reel"><div class="rs"></div></div></div>
   <div id="casMsg"></div><div class="bets" id="bets"></div><button class="btn" id="spinBtn">Крутить</button>
@@ -1049,7 +1066,7 @@ for(let cy=0;cy<CY;cy++)for(let cz=0;cz<CZ;cz++)for(let cx=0;cx<CX;cx++)buildChu
 S.decos.forEach(id=>placeDeco(id,false));
 
 /* ================= ЗВУК ================= */
-let AC=null,master,sfx,mus,verbIn,pink;
+let AC=null,master,sfx,mus,verbIn,verbM,pink;
 function initAudio(){if(AC){if(AC.state==='suspended')AC.resume();return}
   try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
   const comp=AC.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=7000;
@@ -1059,14 +1076,15 @@ function initAudio(){if(AC){if(AC.state==='suspended')AC.resume();return}
     for(let i=0;i<d.length;i++){const w=Math.random()*2-1;b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926}}
   const cv=AC.createConvolver(),len=AC.sampleRate*3,ir=AC.createBuffer(2,len,AC.sampleRate);
   for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);let l=0;for(let i=0;i<len;i++){l=l*.82+(Math.random()*2-1)*.18;d[i]=l*Math.pow(1-i/len,3)*1.8}}
-  cv.buffer=ir;verbIn=AC.createGain();const vo=AC.createGain();vo.gain.value=.5;verbIn.connect(cv);cv.connect(vo);vo.connect(master);wind();startMusic()}
-function send(n,a){const g=AC.createGain();g.gain.value=a;n.connect(g);g.connect(verbIn)}
+  cv.buffer=ir;verbIn=AC.createGain();const vo=AC.createGain();vo.gain.value=.5;verbIn.connect(cv);cv.connect(vo);vo.connect(sfx);
+  const cv2=AC.createConvolver();cv2.buffer=ir;verbM=AC.createGain();const vo2=AC.createGain();vo2.gain.value=.5;verbM.connect(cv2);cv2.connect(vo2);vo2.connect(mus);wind();startMusic()}
+function send(n,a,m){const g=AC.createGain();g.gain.value=a;n.connect(g);g.connect(m?verbM:verbIn)}
 function nz(t,{f=900,q=.7,lpf=2000,a=.008,d=.1,v=.1}){const s=AC.createBufferSource();s.buffer=pink;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;
   const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=lpf;const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d);
   s.connect(bp);bp.connect(lp);lp.connect(g);g.connect(sfx);s.start(t,Math.random()*1.5,a+d+.05)}
 function tone(f,t,v,dur,dest){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),g2=AC.createGain();o.frequency.value=f;o2.frequency.value=f*2.001;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(v*.16,t+.004);g2.gain.exponentialRampToValueAtTime(.0001,t+dur*.3);
-  o.connect(g);o2.connect(g2);g.connect(dest);g2.connect(dest);send(g,.55);o.start(t);o2.start(t);o.stop(t+dur+.05);o2.stop(t+dur*.3+.05)}
+  o.connect(g);o2.connect(g2);g.connect(dest);g2.connect(dest);send(g,.55,dest!==sfx);o.start(t);o2.start(t);o.stop(t+dur+.05);o2.stop(t+dur*.3+.05)}
 const okS=()=>AC&&S.sound;
 function sndWhoosh(){if(!okS())return;const t=AC.currentTime,s=AC.createBufferSource();s.buffer=pink;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.2;
   bp.frequency.setValueAtTime(400,t);bp.frequency.exponentialRampToValueAtTime(1300,t+.16);const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+.08);g.gain.exponentialRampToValueAtTime(.0001,t+.2);
@@ -1102,7 +1120,7 @@ const SONGS=[
 const NOTE={C:0,D:2,E:4,F:5,G:7,A:9,B:11};const freq=s=>{const m=s.match(/^([A-G])(#?)(\d)$/);return 440*Math.pow(2,(NOTE[m[1]]+(m[2]?1:0)+(+m[3]+1)*12-69)/12)};
 const SP=SONGS.map(s=>{const a=s.n.split(' '),o=[];for(let i=0;i<a.length;i+=2)o.push([freq(a[i]),+a[i+1]]);return{t:s.t,root:freq(s.k+'3'),notes:o}});
 let mS=0,mI=0,mN=0,mBus,pad=null;
-function padOn(root,t){padOff(t);const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.018,t+3);const hp_=AC.createBiquadFilter();hp_.type='highpass';hp_.frequency.value=220;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;g.connect(hp_);hp_.connect(lp);lp.connect(mus);send(lp,.6);
+function padOn(root,t){padOff(t);const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.018,t+3);const hp_=AC.createBiquadFilter();hp_.type='highpass';hp_.frequency.value=220;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;g.connect(hp_);hp_.connect(lp);lp.connect(mus);send(lp,.6,true);
   const os=[root,root*1.498,root*2,root*2.52].map((f,i)=>{const o=AC.createOscillator();o.type='triangle';o.frequency.value=f;o.detune.value=i%2?5:-5;const og=AC.createGain();og.gain.value=i===3?.35:1;o.connect(og);og.connect(g);o.start(t);return o});pad={g,os}}
 function padOff(t){if(!pad)return;const p=pad;pad=null;p.g.gain.cancelScheduledValues(t);p.g.gain.setValueAtTime(p.g.gain.value,t);p.g.gain.linearRampToValueAtTime(0,t+2.5);p.os.forEach(o=>o.stop(t+2.6))}
 function startMusic(){mBus=AC.createBiquadFilter();mBus.type='lowpass';mBus.frequency.value=3400;mBus.connect(mus);mS=Math.floor(Math.random()*SP.length);mN=AC.currentTime+1.5;padOn(SP[mS].root,AC.currentTime+.5);
@@ -1813,13 +1831,14 @@ function checkAch(){for(const a of ACH)if(!S.ach[a.id]&&a.f()){S.ach[a.id]=Date.
 /* ================= МОДАЛКИ, НОСОК ================= */
 let pauseT=0;function openModal(s){if(!modalOpen)pauseT=nowS();modalOpen=true;ptr.down=false;$(s).classList.add('open')}
 function unpause(){const d=nowS()-pauseT;if(d<=0||!pauseT)return;if(blizzardUntil>pauseT)blizzardUntil+=d;if(goldUntil>pauseT)goldUntil+=d;nextSleigh+=d;nextBlizz+=d;nextFw+=d;lastStrokeT+=d;nextEvt+=d;nextEv+=d;EVS.forEach(e=>{e.until+=d;if(e.t0)e.t0+=d});if(EV.aurora>pauseT)EV.aurora+=d;if(EV.thaw>pauseT)EV.thaw+=d;if(horoUntil>pauseT)horoUntil+=d;pauseT=0}
-function openMenu(){$('#menuMain').style.display='';$('#menuConfirm').style.display='none';$('#mMus').textContent='Музыка: '+(S.music?'вкл':'выкл');$('#mZen').textContent='Спокойный режим: '+(document.body.classList.contains('zen')?'вкл':'выкл');$('#mSnd').textContent='Звуки: '+(S.sound?'вкл':'выкл');openModal('#mMenu')}
+function openMenu(){$('#menuMain').style.display='';$('#menuConfirm').style.display='none';$('#mMus').textContent='Музыка: '+(S.music?'вкл':'выкл');{const n=(S.notes||[]).length;$('#mNotes').style.display=n?'':'none';$('#mNotes').textContent=`Записки (${n})`}$('#mZen').textContent='Спокойный режим: '+(document.body.classList.contains('zen')?'вкл':'выкл');$('#mSnd').textContent='Звуки: '+(S.sound?'вкл':'выкл');openModal('#mMenu')}
 $('#bMenu').onclick=()=>{tick();if(started)openMenu()};
 $('#mMus').onclick=()=>{$('#bMusic').click();$('#mMus').textContent='Музыка: '+(S.music?'вкл':'выкл')};
 $('#mSnd').onclick=()=>{$('#bSound').click();$('#mSnd').textContent='Звуки: '+(S.sound?'вкл':'выкл')};
 function setZen(v){document.body.classList.toggle('zen',v);$('#mZen').textContent='Спокойный режим: '+(v?'вкл':'выкл')}
 $('#mZen').onclick=()=>{setZen(!document.body.classList.contains('zen'));closeModals()};
 addEventListener('keydown',e=>{if(e.code==='KeyZ'&&started&&!modalOpen)setZen(!document.body.classList.contains('zen'))});
+$('#mNotes').onclick=()=>{closeModals();setTimeout(()=>showNote(0),200)};
 $('#mPetBtn').onclick=()=>{closeModals();setTimeout(()=>openPetEditor(false),200)};
 $('#mReset').onclick=()=>{$('#menuMain').style.display='none';$('#menuConfirm').style.display=''};
 $('#mResetNo').onclick=()=>{$('#menuMain').style.display='';$('#menuConfirm').style.display='none'};
@@ -1829,8 +1848,9 @@ function closeModals(){if(caseState&&caseState.phase==='rolling'){caseState.an&&
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(m.id==='mCase')return;if(e.target===m||e.target.closest('[data-close]')){closeModals();tick()}}));
 $('#dAch').onclick=()=>{tick();const got=ACH.filter(a=>S.ach[a.id]).length;$('#achSub').textContent=`Собрано ${got} из ${ACH.length}`;
   $('#achGrid').innerHTML=ACH.map(a=>`<div class="stamp ${S.ach[a.id]?'':'lock'}"><div class="e">${a.e}</div><h4>${a.n}</h4><p>${a.d}</p></div>`).join('');openModal('#mAch')};
-$('#bMusic').onclick=()=>{initAudio();S.music=!S.music;if(mus)mus.gain.value=S.music?.45:0;$('#bMusic').classList.toggle('off',!S.music)};
-$('#bSound').onclick=()=>{initAudio();S.sound=!S.sound;if(sfx)sfx.gain.value=S.sound?1:0;$('#bSound').classList.toggle('off',!S.sound)};
+function syncSnd(){if(mus)mus.gain.setTargetAtTime(S.music?.45:0,AC.currentTime,.05);if(sfx)sfx.gain.setTargetAtTime(S.sound?1:0,AC.currentTime,.05);$('#bMusic').classList.toggle('off',!S.music);$('#bSound').classList.toggle('off',!S.sound);save()}
+$('#bMusic').onclick=e=>{e.stopPropagation();initAudio();S.music=!S.music;syncSnd()};
+$('#bSound').onclick=e=>{e.stopPropagation();initAudio();S.sound=!S.sound;syncSnd()};$('#bMusic').classList.toggle('off',!S.music);$('#bSound').classList.toggle('off',!S.sound);
 $('#bMusic').classList.toggle('off',!S.music);$('#bSound').classList.toggle('off',!S.sound);
 const stockReady=()=>S.stock!==today();
 $('#dStock').onclick=()=>{initAudio();if(!stockReady())return banner('🧦','Носок пуст. Загляните завтра');const r=Math.round(150+S.earned*.01+S.streak*80);
@@ -1955,8 +1975,12 @@ const hatch=(()=>{const x=34,z=-28,g=new THREE.Group();g.position.set(x,3,z);con
   const H={x,z,g,glow,bub};bub.onclick=()=>{S.knocks=(S.knocks||0)+1;const t=AC?AC.currentTime:0;for(let i=0;i<3;i++)try{nz(t+i*.32,{f:180,q:.8,lpf:600,a:.003,d:.12,v:.25})}catch(e){}
     const k=S.knocks;let msg=k===1?'Заперто изнутри.':k===2?'Тишина.':(k===3&&S.wSeen)?'…изнутри постучали в ответ. Три раза.':['Под люком тепло.','На люке выцарапано: 31.12','Снежинка на люке светится ярче, когда вы рядом.','Тишина.','Кажется, снизу кто-то дышит. Или это ветер.'][k%5];
     if(k===3&&S.wSeen)setTimeout(()=>{for(let i=0;i<3;i++)try{nz(AC.currentTime+i*.5,{f:140,q:.8,lpf:500,a:.003,d:.15,v:.2})}catch(e){}},1400);banner('🚪',msg);save()};return H})();
+function showNote(k){const list=S.notes||[];if(!list.length)return;k=(k+list.length)%list.length;showNote.k=k;const txt=NOTES[list[k]].replace(/^«…?|»$/g,'');
+  $('#noteText').textContent='…'+txt;$('#noteNum').textContent=list.length>1?`${k+1} / ${list.length}`:'';$('#notePrev').style.visibility=$('#noteNext').style.visibility=list.length>1?'visible':'hidden';
+  const m=$('#mNote');m.classList.remove('open');void m.offsetWidth;if(!modalOpen)openModal('#mNote');else m.classList.add('open');try{nz(AC.currentTime,{f:2600,q:.5,lpf:5000,a:.02,d:.5,v:.05})}catch(e){}}
+$('#noteClose').onclick=()=>closeModals();$('#notePrev').onclick=()=>showNote(showNote.k-1);$('#noteNext').onclick=()=>showNote(showNote.k+1);
 const NOTES=['«…он стоит у кромки леса, когда никто не смотрит»','«…не копай до земли у середины. Там дверь»','«…считай удары колокола»','«…снеговик у домика не мой. Я его не лепил»','«…31.12. Если постучат — не открывай»'];
-function mystFind(){const r=Math.random();if(r<.006){S.notes=S.notes||[];const left=NOTES.map((n,i)=>i).filter(i=>!S.notes.includes(i));if(left.length){const i=left[0];S.notes.push(i);banner('📜','Обрывок записки: '+NOTES[i]);return true}}
+function mystFind(){const r=Math.random();if(r<.006){S.notes=S.notes||[];const left=NOTES.map((n,i)=>i).filter(i=>!S.notes.includes(i));if(left.length){const i=left[0];S.notes.push(i);save();setTimeout(()=>showNote(S.notes.length-1),500);return true}}
   if(r>.995){S.bb=(S.bb||0)+1;banner('🔕','Чёрный колокольчик. Он не звенит.');return true}return false}
 
 /* ================= ЖИТЕЛИ И СОБЫТИЯ ================= */
@@ -2364,7 +2388,7 @@ $('#start').onclick=()=>{initAudio();
   if(!hadSave&&!S.petMade){intro.classList.add('hide');openPetEditor(true,()=>{S.petMade=true;save();startRoom(()=>beginGame(true))})}else beginGame(false)};
 $('#roomGo').onclick=endRoom;$('#roomSkip').onclick=endRoom;
 requestAnimationFrame(frame);setTimeout(()=>$('#load').classList.add('hide'),200);
-window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
+window.__au=()=>[AC&&AC.state,mus&&+mus.gain.value.toFixed(2),sfx&&+sfx.gain.value.toFixed(2),S.music,S.sound];window.__note=showNote;window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
 </script>
 <div id="roomUI"><div class="vign"></div><p id="roomSub"></p><button class="btn" id="roomGo">Идти копать</button><button id="roomSkip">Пропустить</button></div><div id="roomFade"></div>
 </body>
