@@ -450,6 +450,9 @@ button{touch-action:manipulation}
   #intro h1{font-size:44px!important}
   #roomSkip{top:calc(12px + env(safe-area-inset-top))}
 }
+.elfTag{position:absolute;left:0;top:0;transform:translate(-50%,-100%);padding:3px 9px;border-radius:999px;background:rgba(255,253,248,.9);color:#3a2a22;font-weight:700;font-size:11.5px;line-height:1.3;white-space:nowrap;box-shadow:0 2px 8px rgba(40,30,20,.14);cursor:text;user-select:none;pointer-events:auto;transition:opacity .2s}
+.elfTag:hover{background:#fff;box-shadow:0 0 0 2px rgba(201,54,62,.35),0 2px 8px rgba(40,30,20,.14)}
+.elfTag input{border:0;outline:0;background:transparent;font:inherit;color:inherit;width:9em;text-align:center;padding:0}
 </style>
 </head>
 <body class="intro">
@@ -623,11 +626,11 @@ const fbm=(x,y)=>vnoise(x,y)*.6+vnoise(x*2.1+5,y*2.1+3)*.28+vnoise(x*4.3+9,y*4.3
 const LS='velikiy-sugrob-v17';
 const SAVE0=(()=>{try{return JSON.parse(localStorage.getItem(LS)||'null')}catch(e){return null}})();
 const SEED=(SAVE0&&SAVE0.seed)||1,PRES=(SAVE0&&SAVE0.prestige)||0;
-const NX=320,NZ=320,NY=128,CH=16,CX=NX/CH,CZ=NZ/CH,CY=NY/CH,BASE=6,MR=145,PEAK=106+Math.min(PRES,3)*5,DIG_R=156;
+const NX=320,NZ=320,NY=160,CH=16,CX=NX/CH,CZ=NZ/CH,CY=NY/CH,BASE=6,MR=152,PEAK=136+Math.min(PRES,3)*4,DIG_R=158;
 const LAYERN=NX*NZ;
 const vox=new Uint8Array(NX*NY*NZ),hp=new Int16Array(NX*NY*NZ),h0=new Int16Array(LAYERN),top=new Int16Array(LAYERN);
 const id=(x,y,z)=>(y*NZ+z)*NX+x;
-const ICE_Y=[104,94,84,74,64,54,44,34,24,14];
+const ICE_Y=[134,124,114,104,94,84,74,64,54,44,34,24,14];
 // 1 свежий, 2 слежавшийся, 3 фирн, 4 лёд, 5 земля, 6 камень, 7 подарок, 8 стена, 9 окно, 10 крыша, 11 дверь
 const REQ={1:0,2:0,3:2,4:4,5:8},ELF_REQ={1:0,2:1,3:3,4:5,5:7};
 const HP=[0,15,30,60,180,600,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999];
@@ -661,11 +664,11 @@ function wsType(x,y,z){if(x<WS.x0||x>WS.x1||z<WS.z0||z>WS.z1||y<WS.y0||y>WS.ry)r
     const i=u-3,j=h-11,mh=5.6-Math.abs(i-4.5)*1.15;if(j<mh)return 12;if((i===7&&j===0)||(i===8&&j===0))return 13;return 9}
   return 0}
 for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){const wx=x+.5-NX/2,wz=z+.5-NZ/2,r=Math.hypot(wx,wz);
-  const t=(r+fbm(wx*.03+3+SEED*17,wz*.03+7)*6)/MR,b=t<1?1-Math.pow(t,1.2):0;
+  const t=(r+fbm(wx*.03+3+SEED*17,wz*.03+7)*6)/MR,b=t<1?1-Math.pow(t,1.55):0;
   let h=BASE+PEAK*b+fbm(wx*.07+SEED*5,wz*.07)*1.8*Math.min(1,b*3);h0[z*NX+x]=top[z*NX+x]=Math.max(BASE,Math.round(h))}
 function genType(x,y,z){const w=wsType(x,y,z);if(w)return w;const h=h0[z*NX+x];if(y>=h)return 0;if(x>=WS.x0-2&&x<=WS.x1+2&&z>=WS.z0-2&&z<=WS.z1+2&&y>=1&&y<=WS.ry+2)return 5;if(y===0)return 6;if(y<=2)return 5;if(h-1-y<1)return 1;if(ICE_Y.includes(y))return 4;return y<40?3:2}
-const hpAt=(t,y)=>t>=5?HP[t]:Math.round(HP[t]*(1+Math.max(0,80-y)/9));
-for(let y=0;y<NY;y++)for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){const t=genType(x,y,z);if(t){const k=id(x,y,z);vox[k]=t;hp[k]=hpAt(t,y)}}
+const hpAt=(t,y,x,z)=>{if(t>=5)return HP[t];const d=h0[z*NX+x]-1-y;return Math.round(HP[t]*Math.min(9,1+Math.max(0,d-4)/9))};
+for(let y=0;y<NY;y++)for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){const t=genType(x,y,z);if(t){const k=id(x,y,z);vox[k]=t;hp[k]=hpAt(t,y,x,z)}}
 const wsPct=()=>{let a=0;for(const k of WSRING)if(!vox[k]||vox[k]===7)a++;return a/WSRING.length};
 const sol=(x,y,z)=>{if(y<0)return 6;if(y>=NY)return 0;if(x<0||z<0||x>=NX||z>=NZ)return y<BASE?2:0;return vox[(y*NZ+z)*NX+x]};
 const canDig=(x,z)=>Math.hypot(x+.5-NX/2,z+.5-NZ/2)<DIG_R;
@@ -704,7 +707,7 @@ function drawSky(){const W=Math.round(innerWidth/1.5),Hh=Math.round(innerHeight/
 
 const cam=new THREE.OrthographicCamera(-1,1,1,-1,1,1000);scene.add(cam);
 const VH0=40;
-const CAM={ang:Math.PI/4-.9,tAng:Math.PI/4-.9,elev:.64,dist:520,zoom:.1,tZoom:.1,target:new THREE.Vector3(0,64,0),tTarget:new THREE.Vector3(0,64,0),shake:0};
+const CAM={ang:Math.PI/4-.9,tAng:Math.PI/4-.9,elev:.64,dist:520,zoom:.1,tZoom:.1,target:new THREE.Vector3(0,80,0),tTarget:new THREE.Vector3(0,80,0),shake:0};
 function placeCam(){const c=CAM,sx=(Math.random()-.5)*c.shake,sy=(Math.random()-.5)*c.shake;
   cam.position.set(c.target.x+Math.sin(c.ang)*Math.cos(c.elev)*c.dist+sx,c.target.y+Math.sin(c.elev)*c.dist+sy,c.target.z+Math.cos(c.ang)*Math.cos(c.elev)*c.dist);
   cam.lookAt(c.target.x+sx,c.target.y+sy,c.target.z);const vh=VH0/c.zoom,a=innerWidth/innerHeight;cam.left=-vh*a/2;cam.right=vh*a/2;cam.top=vh/2;cam.bottom=-vh/2;cam.updateProjectionMatrix()}
@@ -750,7 +753,7 @@ const P=new Float32Array(16*16*16*6*4*3),Nn=new Float32Array(P.length),Cc=new Fl
 function buildChunk(cx,cy,cz){const ci=(cy*CZ+cz)*CX+cx;let vc=0,ic=0,pp=0;
   const x0=cx*CH,y0=cy*CH,z0=cz*CH;const q=[0,0,0],s1=[0,0,0],s2=[0,0,0],co=[0,0,0],ao=[0,0,0,0];
   for(let y=y0;y<y0+CH;y++)for(let z=z0;z<z0+CH;z++){let k=id(x0,y,z);for(let x=x0;x<x0+CH;x++,k++){const t=vox[k];if(!t||t===7)continue;
-    const base=COL[t],j=t>=8?.88+hash3(x,y,z)*.24:.965+hash3(x,y,z)*.07,dm=t<=3?.86+.14*(y/NY):1,cr=hp[k]<hpAt(t,y)?.72+.28*hp[k]/hpAt(t,y):1,m=j*dm*cr;
+    const base=COL[t],j=t>=8?.88+hash3(x,y,z)*.24:.965+hash3(x,y,z)*.07,dm=t<=3?.86+.14*(y/NY):1,cr=hp[k]<hpAt(t,y,x,z)?.72+.28*hp[k]/hpAt(t,y,x,z):1,m=j*dm*cr;
     for(let fi=0;fi<6;fi++){const f=FACES[fi];const nx=x+f.n[0],ny=y+f.n[1],nz=z+f.n[2];if(sol(nx,ny,nz))continue;
       const lit=(fi===2&&t===1)?1.03:1;
       for(let c=0;c<4;c++){const cr2=f.corners[c];q[0]=nx;q[1]=ny;q[2]=nz;
@@ -816,10 +819,10 @@ const UB=new THREE.BoxGeometry(1,1,1);
 function add(m,parent,x,y,z,cast=true){m.position.set(x,y,z);m.castShadow=cast;m.receiveShadow=true;parent.add(m);return m}
 function bx(p,w,h,d,mat,x,y,z,cast=true){const m=new THREE.Mesh(UB,typeof mat==='number'?M(mat):mat);m.scale.set(w,h,d);return add(m,p,x,y,z,cast)}
 // ели — инстансами
-const SLOTR=184;const SLOTS=[];for(let i=0;i<28;i++){const a=Math.PI/4+(i%2?1:-1)*Math.ceil(i/2)*0.37;SLOTS.push([Math.cos(a)*(SLOTR+(i%3)*8),Math.sin(a)*(SLOTR+(i%3)*8),a])}
+const DEPOTS=[0,1,2,3,4].map(i=>{const a=i/5*Math.PI*2+.3;return[Math.cos(a)*170,Math.sin(a)*170,a]});const SLOTR=184;const SLOTS=[];for(let i=0;i<28;i++){const a=Math.PI/4+(i%2?1:-1)*Math.ceil(i/2)*0.37;SLOTS.push([Math.cos(a)*(SLOTR+(i%3)*8),Math.sin(a)*(SLOTR+(i%3)*8),a])}
 const ADVS=[[-.42,226],[.42,226],[-.82,220],[.82,220],[-1.2,214],[0,240]].map(([o,r])=>{const a=Math.PI/4+o;return[Math.cos(a)*r,Math.sin(a)*r,a]});
 {const r=mulberry32(91),list=[];for(let i=0;i<300;i++){const a=r()*Math.PI*2,d=170+r()*210,x=Math.cos(a)*d,z=Math.sin(a)*d;
-  if(SLOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<14)||ADVS.some(s=>Math.hypot(s[0]-x,s[1]-z)<16))continue;if(Math.hypot(x+212,z+138)<14)continue;list.push([x,z,1+r()*1.2,r()])}
+  if(DEPOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<11)||SLOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<14)||ADVS.some(s=>Math.hypot(s[0]-x,s[1]-z)<16))continue;if(Math.hypot(x+212,z+138)<14)continue;list.push([x,z,1+r()*1.2,r()])}
  const n=list.length,TI=6,tr=new THREE.InstancedMesh(UB,M(0x4a3020),n*2),gr=new THREE.InstancedMesh(UB,M(0x1d4434),n*TI*2),gr2=new THREE.InstancedMesh(UB,M(0x2b5d46),n*TI*2),tip=new THREE.InstancedMesh(UB,M(0x245040),n*TI*4),sn=new THREE.InstancedMesh(UB,snowM,n*(TI*6+1));
  const o=new THREE.Object3D();let gi=0,g2i=0,ti=0,si=0,tri=0;
  list.forEach(([x,z,s,rr],i)=>{const S=s*1.4,ry=rr*Math.PI*2;o.rotation.set(0,ry,0);o.position.set(x,BASE+.6*S,z);o.scale.set(.55*s,1.2*S,.55*s);o.updateMatrix();tr.setMatrixAt(tri++,o.matrix);
@@ -856,7 +859,7 @@ const ADVS=[[-.42,226],[.42,226],[-.82,220],[.82,220],[-1.2,214],[0,240]].map(([
   sled:[[0xc9363e,0,.9,.12,1.8,0,.45,0],[0x5a3a22,0,.08,.3,1.9,-.38,.2,.05],[0x5a3a22,0,.08,.3,1.9,.38,.2,.05],[0x5a3a22,0,.08,.4,.08,-.38,.35,1],[0x5a3a22,0,.08,.4,.08,.38,.35,1]]};
  const kinds=['lamp','lamp','fence','fence','fence','bench','snowman','stump','rock','rock','bush','bush','birch','birch','birch','birch','birch','cane','sled'];
  for(let i=0;i<230;i++){const a=r()*Math.PI*2,d=162+r()*190,x=Math.cos(a)*d,z=Math.sin(a)*d;
-   if(SLOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<12)||ADVS.some(s=>Math.hypot(s[0]-x,s[1]-z)<14)||Math.hypot(x+212,z+138)<12)continue;
+   if(DEPOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<10)||SLOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<12)||ADVS.some(s=>Math.hypot(s[0]-x,s[1]-z)<14)||Math.hypot(x+212,z+138)<12)continue;
    const k=kinds[Math.floor(r()*kinds.length)],yaw=k==='lamp'||k==='fence'||k==='bench'?-a+Math.PI/2:r()*6.28,sc=k==='birch'?1+r()*.5:.9+r()*.3;
    for(const [c,g,w,h,dd,px,py,pz,rz,rx] of P[k])add(c,g,w*sc,h*sc,dd*sc,px*sc,py*sc,pz*sc,rz||0,x,z,BASE,yaw,rx||0)}
  const o=new THREE.Object3D();
@@ -1102,9 +1105,9 @@ const L=k=>S.up[k]||0;
 const CL=k=>(S.charms&&S.charms[k])||0;
 const tool=()=>{const T=TOOLS[S.tool],th=EV.thaw>Date.now()/1000?2:1;return{th,r:T.r*(1+.04*L('reach'))*(1+.03*CL('star')),dmg:Math.round(T.dmg*(1+.1*L('pow'))*(1+.06*CL('ginger'))*(1+.25*PRES)*th),iv:T.iv*(1-.035*L('speed'))}};
 function encVox(){const out=[];let cur=vox[0],run=0;for(let k=0;k<vox.length;k++){const v=vox[k];if(v===cur)run++;else{out.push(cur,run);cur=v;run=1}}out.push(cur,run);return out.join(',')}
-function decVox(s){const a=s.split(',').map(Number);let k=0;for(let i=0;i<a.length;i+=2){const t=a[i],n=a[i+1];for(let j=0;j<n;j++){vox[k]=t;hp[k]=hpAt(t,Math.floor(k/LAYERN));k++}}
+function decVox(s){const a=s.split(',').map(Number);let k=0;for(let i=0;i<a.length;i+=2){const t=a[i],n=a[i+1];for(let j=0;j<n;j++){vox[k]=t;hp[k]=hpAt(t,Math.floor(k/LAYERN),k%NX,Math.floor(k/NX)%NZ);k++}}
   for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){let y=NY-1;while(y>0&&!vox[id(x,y,z)])y--;top[z*NX+x]=vox[id(x,y,z)]?y+1:0}}
-if(savedVox){try{decVox(savedVox)}catch(e){}}
+if(savedVox&&S.wv!==2)savedVox=null;S.wv=2;if(savedVox){try{decVox(savedVox)}catch(e){}}
 let saveBlocked=false;function save(){if(saveBlocked)return;S.last=Date.now();try{localStorage.setItem(LS,JSON.stringify(Object.assign({},S,{vx:encVox()})))}catch(e){}}
 setInterval(save,15000);addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 for(let i=0;i<gifts.length;i++){if(S.found.includes(i)){gifts[i].found=true;if(vox[id(gifts[i].x,gifts[i].y,gifts[i].z)]===7)vox[id(gifts[i].x,gifts[i].y,gifts[i].z)]=0}else makeGift(gifts[i])}
@@ -1216,7 +1219,7 @@ function makeElf(){const g=new THREE.Group(),body=new THREE.Group();g.add(body);
   g.traverse(o=>{if(o.isMesh)o.castShadow=true});g.scale.setScalar(1.45);scene.add(g);return{g,body,head,hat,tip,L:Lg,R:Rg,AL,AR,sh}}
 const elves=[];
 function syncElves(){while(elves.length<L('elves')){const m=makeElfOf(elfTier());const a=Math.random()*6.28,r=20+Math.random()*30;const e={m,x:Math.cos(a)*r,z:Math.sin(a)*r,y:0,state:'walk',t:0,strokes:0,phase:Math.random()*5,yaw:0,cheer:0,tier:elfTier()};e.y=groundY(e.x,e.z);elfTarget(e);elves.push(e)}}
-function elfTarget(e){const fx=lastDig?lastDig.x:CAM.target.x,fz=lastDig?lastDig.z:CAM.target.z;for(let k=0;k<30;k++){const a=Math.random()*6.28,r=5+Math.random()*18,x=clamp(fx+Math.cos(a)*r,-140,140),z=clamp(fz+Math.sin(a)*r,-140,140);if(groundY(x,z)>BASE+1&&Math.hypot(x,z)<DIG_R-2){const vx=clamp(toVX(x),0,NX-1),vz=clamp(toVZ(z),0,NZ-1),tt=vox[id(vx,top[vz*NX+vx]-1,vz)];if((ELF_REQ[tt]||0)>elfTier()&&k<29)continue;e.tx=x;e.tz=z;break}}e.state='walk';e.strokes=3+Math.floor(Math.random()*4)}
+function elfTarget(e){const fx=lastDig?lastDig.x:CAM.target.x,fz=lastDig?lastDig.z:CAM.target.z;for(let k=0;k<30;k++){const a=Math.random()*6.28,r=5+Math.random()*18,x=clamp(fx+Math.cos(a)*r,-140,140),z=clamp(fz+Math.sin(a)*r,-140,140);if(groundY(x,z)>BASE+1&&Math.hypot(x,z)<DIG_R-2){const vx=clamp(toVX(x),0,NX-1),vz=clamp(toVZ(z),0,NZ-1),tt=vox[id(vx,top[vz*NX+vx]-1,vz)];if((ELF_REQ[tt]||0)>elfTier()&&k<29)continue;e.tx=x;e.tz=z;break}}e.state='walk';e.strokes=5+Math.floor(Math.random()*4);setLoad(e,false)}
 function updElves(dt,t){const sk=1+.12*L('skill');refreshElves();const idle=performance.now()/1000-lastStrokeT>30;for(const e of elves){const m=e.m;e.phase+=dt;
   if(idle&&e.state!=='rest'){e.state='rest';e.t=0}if(!idle&&e.state==='rest')elfTarget(e);
   if(m.veh){if(e.cheer>0)e.cheer=0;if(e.state==='rest'){m.wheels.forEach(()=>{});e.y+=(groundY(e.x,e.z)-e.y)*Math.min(1,dt*8);m.g.position.set(e.x,e.y,e.z);if(m.rotor)m.rotor.rotation.x-=dt*1.5;continue}updVehicle(e,dt,t,sk);continue}
@@ -1224,7 +1227,8 @@ function updElves(dt,t){const sk=1+.12*L('skill');refreshElves();const idle=perf
     e.y+=(groundY(e.x,e.z)-e.y)*Math.min(1,dt*10);m.g.position.set(e.x,e.y,e.z);continue}
   if(e.cheer>0){e.cheer-=dt;const j=Math.abs(Math.sin(e.cheer*9))*.5;m.g.position.set(e.x,e.y+j,e.z);m.AL.rotation.x=m.AR.rotation.x=-2.8;m.AL.rotation.z=.4;m.AR.rotation.z=-.4;m.tip.rotation.x=Math.sin(t*20)*.4;continue}
   m.AL.rotation.z=m.AR.rotation.z=0;
-  if(e.state==='walk'){const dx=e.tx-e.x,dz=e.tz-e.z,d=Math.hypot(dx,dz);
+  if(e.state==='haul'){setLoad(e,true);haulStep(e,dt,2.6*sk*2.4);const sw=Math.sin(e.phase*14);m.L.rotation.x=sw*.8;m.R.rotation.x=-sw*.8;m.AL.rotation.x=m.AR.rotation.x=-1.25;m.body.position.y=Math.abs(Math.cos(e.phase*14))*.06;m.body.rotation.x=.06;m.tip.rotation.x=-.4+sw*.2;m.head.rotation.y=0}
+  else if(e.state==='walk'){const dx=e.tx-e.x,dz=e.tz-e.z,d=Math.hypot(dx,dz);
     if(d<.4){e.state='dig';e.t=0}else{const sp=2.6*sk*dt;e.x+=dx/d*Math.min(sp,d);e.z+=dz/d*Math.min(sp,d);e.yaw=Math.atan2(dx,dz)}
     const sw=Math.sin(e.phase*11);m.L.rotation.x=sw*.7;m.R.rotation.x=-sw*.7;m.AL.rotation.x=-sw*.6;m.AR.rotation.x=sw*.4-.2;m.body.position.y=Math.abs(Math.cos(e.phase*11))*.06;m.body.rotation.x=0;
     m.tip.rotation.x=-.3+sw*.15;m.head.rotation.y=Math.sin(e.phase*2)*.2}
@@ -1232,9 +1236,9 @@ function updElves(dt,t){const sk=1+.12*L('skill');refreshElves();const idle=perf
     let a;if(p<.45){a=lerp(.2,-2.6,ease(p/.45));m.body.rotation.x=lerp(0,-.15,p/.45)}else if(p<.6){a=lerp(-2.6,-.2,easeIn((p-.45)/.15));m.body.rotation.x=lerp(-.15,.35,(p-.45)/.15)}else{a=lerp(-.2,-1.2,easeOut((p-.6)/.4));m.body.rotation.x=lerp(.35,0,(p-.6)/.4)}
     m.AR.rotation.x=a;m.AL.rotation.x=a*.8;m.tip.rotation.x=-a*.2;m.head.rotation.y=0;
     const prev=((e.t-dt*Math.min(1.8,sk))%iv)/iv;if(prev<.6&&p>=.6){const fx=e.x+Math.sin(e.yaw)*.7,fz=e.z+Math.cos(e.yaw)*.7,vx=clamp(toVX(fx),0,NX-1),vz=clamp(toVZ(fz),0,NZ-1),vy=top[vz*NX+vx]-1;
-      const TT=tool();digAt(vx+.5,vy+.3,vz+.5,Math.max(1.2,TT.r*.45)*(1+.06*(m.tier||0)),Math.max(6,Math.round(TT.dmg*.35*sk*(1+.15*CL('whistle')))),{elf:true,et:elfTier(),toss:[Math.cos(e.yaw)*(Math.random()<.5?1:-1),-Math.sin(e.yaw)]});
-      e.strokes--;if(e.strokes<=0||vy<3)elfTarget(e)}}
-  if(m.blower){m.AR.rotation.x=m.AL.rotation.x=-1.25;m.AR.rotation.z=m.AL.rotation.z=0;m.body.rotation.x=.1;m.blower.rotor.rotation.x-=dt*(e.state==='dig'?26:6);if(e.state==='dig')sprayFrom(m,m.blower.chute,.7,false)}
+      const TT=tool();digAt(vx+.5,vy+.3,vz+.5,Math.max(1.2,TT.r*.45)*(1+.06*(m.tier||0)),Math.max(8,Math.round(TT.dmg*.52*sk*(1+.15*CL('whistle')))),{elf:true,et:elfTier(),toss:[Math.cos(e.yaw)*(Math.random()<.5?1:-1),-Math.sin(e.yaw)]});
+      e.strokes--;if(e.strokes<=0)startHaul(e);else if(vy<3)elfTarget(e)}}
+  if(m.blower){m.AR.rotation.x=m.AL.rotation.x=-1.25;m.AR.rotation.z=m.AL.rotation.z=0;m.body.rotation.x=.1;m.blower.rotor.rotation.x-=dt*(e.state==='dig'?26:e.state==='haul'?2:6);if(e.state==='dig')sprayFrom(m,m.blower.chute,.7,false)}
   e.y+=(groundY(e.x,e.z)-e.y)*Math.min(1,dt*10);m.g.position.set(e.x,e.y,e.z);m.g.rotation.y+=((e.yaw-m.g.rotation.y+Math.PI*3)%(Math.PI*2)-Math.PI)*Math.min(1,dt*8)}}
 /* ================= ЭЛЬФИЙСКИЙ АВТОПАРК: от лопатки до роторного снегоочистителя ================= */
 const ELF_T=[{lv:0,n:'Эльф с лопаткой'},{lv:2,n:'Эльф в каске с совковой лопатой'},{lv:4,n:'Эльф с лопатой-движком'},{lv:6,n:'Эльф со снегоуборщиком'},
@@ -1288,20 +1292,66 @@ function refreshElves(){const t=elfTier();for(const e of elves){if(e.tier===t)co
 function sprayFrom(V,obj,amt,far){if(Math.random()>amt)return;const p=new THREE.Vector3(0,far?1.2:.5,far?.5:.15).applyMatrix4(obj.matrixWorld),d=new THREE.Vector3(0,0,1).transformDirection(obj.matrixWorld);
   const s=(far?9:5)*(.8+Math.random()*.4);spawn({x:p.x,y:p.y,z:p.z,vx:d.x*s+(Math.random()-.5),vy:(far?6:3)+Math.random()*2,vz:d.z*s+(Math.random()-.5),g:9,drag:.6,life:1.4,s:far?6:4,a:.9,c:WHITE})}
 function updVehicle(e,dt,t,sk){const V=e.m,T=V.tier,spd=ELF_SPD[T]*sk;let moving=0;
-  if(e.state==='walk'){const dx=e.tx-e.x,dz=e.tz-e.z,d=Math.hypot(dx,dz);if(d<.5){e.state='dig';e.t=0}else{const s=Math.min(2.6*spd*dt,d);e.x+=dx/d*s;e.z+=dz/d*s;e.yaw=Math.atan2(dx,dz);moving=s/dt}
+  if(e.state==='haul'){setLoad(e,true);const s0=2.6*spd*1.7*dt;moving=haulStep(e,dt,2.6*spd*1.7)?0:s0/dt;if(V.blade)V.blade.position.y+=(.55-V.blade.position.y)*Math.min(1,dt*6)}
+  else if(e.state==='walk'){const dx=e.tx-e.x,dz=e.tz-e.z,d=Math.hypot(dx,dz);if(d<.5){e.state='dig';e.t=0}else{const s=Math.min(2.6*spd*dt,d);e.x+=dx/d*s;e.z+=dz/d*s;e.yaw=Math.atan2(dx,dz);moving=s/dt}
     V.g.children.forEach(()=>{});if(V.blade)V.blade.position.y+=((T===4||T===5?.45:.5)-V.blade.position.y)*Math.min(1,dt*6)}
   else{e.t+=dt*Math.min(1.8,sk);const iv=T>=6?1.4:1.15,p=(e.t%iv)/iv;const push=p>.3&&p<.65;
     if(push){const s=dt*(T>=6?1.6:2.2)*spd;const nx=e.x+Math.sin(e.yaw)*s,nz=e.z+Math.cos(e.yaw)*s;if(Math.hypot(nx,nz)<DIG_R-2){e.x=nx;e.z=nz}moving=s/dt}
     if(V.blade)V.blade.position.y+=((push?.12:.4)-V.blade.position.y)*Math.min(1,dt*8);V.g.rotation.x=push?-.03:0;
     const prev=((e.t-dt*Math.min(1.8,sk))%iv)/iv;if(prev<.6&&p>=.6){const F=ELF_FRONT[T],fx=e.x+Math.sin(e.yaw)*F,fz=e.z+Math.cos(e.yaw)*F,vx=clamp(toVX(fx),0,NX-1),vz=clamp(toVZ(fz),0,NZ-1),vy=top[vz*NX+vx]-1;
-      const TT=tool();digAt(vx+.5,vy+.3,vz+.5,Math.max(1.4,TT.r*.45)*(1+.06*T),Math.max(6,Math.round(TT.dmg*.35*sk*(1+.15*CL('whistle'))*(1+.08*T))),{elf:true,et:elfTier(),toss:[Math.cos(e.yaw)*(Math.random()<.5?1:-1),-Math.sin(e.yaw)]});
-      CAM.shake=Math.max(CAM.shake,T>=6&&Math.hypot(e.x-CAM.target.x,e.z-CAM.target.z)<30?.08:0);e.strokes--;if(e.strokes<=0||vy<3)elfTarget(e)}
+      const TT=tool();digAt(vx+.5,vy+.3,vz+.5,Math.max(1.4,TT.r*.45)*(1+.06*T),Math.max(8,Math.round(TT.dmg*.52*sk*(1+.15*CL('whistle'))*(1+.08*T))),{elf:true,et:elfTier(),toss:[Math.cos(e.yaw)*(Math.random()<.5?1:-1),-Math.sin(e.yaw)]});
+      CAM.shake=Math.max(CAM.shake,T>=6&&Math.hypot(e.x-CAM.target.x,e.z-CAM.target.z)<30?.08:0);e.strokes--;if(e.strokes<=0)startHaul(e);else if(vy<3)elfTarget(e)}
     if(V.rotor){V.rotor.rotation.x-=dt*22;sprayFrom(V,V.chute,.9,true)}}
   if(V.rotor&&e.state==='walk')V.rotor.rotation.x-=dt*4;
   V.wheels.forEach(w=>w.m.rotation.x+=moving*dt/w.r);V.treads.forEach((tr,i)=>{tr.material.color.setHex(((Math.floor(t*moving*2)+i)%2)?0x3a3e48:0x2a2e36)});
   if(V.ex&&Math.random()<dt*(e.state==='dig'?6:2)){const p=new THREE.Vector3(...V.ex).applyMatrix4(V.g.matrixWorld);spawn({x:p.x,y:p.y,z:p.z,vx:(Math.random()-.5)*.4,vy:1.4,vz:(Math.random()-.5)*.4,g:-.3,drag:.8,life:1.6,s:7,a:.35,grow:1.5,c:[.55,.55,.6]})}
   const bob=moving>0?Math.sin(t*18)*.03:0;e.y+=(groundY(e.x,e.z)-e.y)*Math.min(1,dt*8);V.g.position.set(e.x,e.y+bob,e.z);V.g.rotation.y+=((e.yaw-V.g.rotation.y+Math.PI*3)%(Math.PI*2)-Math.PI)*Math.min(1,dt*4)}
 
+
+/* ================= СНЕЖНЫЕ СКЛАДЫ: эльфы отвозят снег к подножию ================= */
+const DEP_SNOW=M(0xf4f8fc),DEP_WOOD=M(0x8a5a36),DEP_DARK=M(0x5a3a22);const depG=[];
+function setLoad(e,on){const m=e.m;if(!m)return;if(on&&!m.load){const sn=DEP_SNOW;
+    if(m.veh){if(m.blade){m.load=new THREE.Group();m.blade.add(m.load);bx(m.load,1.5,.5,.5,sn,0,.55,-.25);bx(m.load,1,.35,.35,sn,0,.95,-.3);bx(m.load,.5,.25,.3,sn,.2,1.2,-.3)}
+      else{m.load=new THREE.Group();m.g.add(m.load);bx(m.load,1.3,.5,1.4,sn,0,1.95,-1.3);bx(m.load,.9,.35,1,sn,0,2.35,-1.3)}}
+    else{m.load=new THREE.Group();m.body.add(m.load);bx(m.load,.56,.4,.44,sn,0,.74,.46);bx(m.load,.36,.22,.3,sn,.04,1.02,.46);bx(m.load,.18,.12,.16,sn,-.08,1.18,.44)}}
+  if(m.load)m.load.visible=!!on;if(m.sh&&!m.blower)m.sh.visible=!on;e.loaded=!!on}
+function startHaul(e){let bi=0,bd=1e9;DEPOTS.forEach((d,i)=>{const q=Math.hypot(d[0]-e.x,d[1]-e.z);if(q<bd){bd=q;bi=i}});const d=DEPOTS[bi],ux=(e.x-d[0])/(bd||1),uz=(e.z-d[1])/(bd||1),j=(Math.random()-.5)*1.4;
+  e.hd=bi;e.hx=d[0]+ux*5.2-uz*j*3;e.hz=d[1]+uz*5.2+ux*j*3;e.state='haul';setLoad(e,true)}
+function haulStep(e,dt,sp){const dx=e.hx-e.x,dz=e.hz-e.z,d=Math.hypot(dx,dz);if(d<.7){dumpLoad(e);return true}const s=Math.min(sp*dt,d);e.x+=dx/d*s;e.z+=dz/d*s;e.yaw=Math.atan2(dx,dz);return false}
+function dumpLoad(e){const i=e.hd,d=DEPOTS[i];S.dep=S.dep||[0,0,0,0,0];const add=1+(e.tier||0);const before=S.dep[i];S.dep[i]+=add;
+  const px=e.x+Math.sin(e.yaw)*1.2,pz=e.z+Math.cos(e.yaw)*1.2,py=groundY(px,pz)+1;for(let k=0;k<10;k++)spawn({x:px,y:py,z:pz,vx:(Math.random()-.5)*3+Math.sin(e.yaw)*2,vy:2+Math.random()*3,vz:(Math.random()-.5)*3+Math.cos(e.yaw)*2,g:9,drag:.5,life:1.1,s:4,a:.9,c:WHITE});
+  updDepot(i);e.cheer=.5;setLoad(e,false);elfTarget(e);
+  hint('haul','🛷','Эльфы отвозят снег','Набрав снега, эльфы несут его на склады у подножия горы. Там растут снежные горки — загляните, что из них получится.');
+  for(const [n,ic,tx] of DEP_MS)if(before<n&&S.dep[i]>=n){banner(ic,tx);break}}
+const DEP_MS=[[60,'⛰️','На складе у подножия выросла <b>снежная горка</b>'],[180,'🚩','Эльфы поставили на горку <b>флажок</b>'],[420,'⛄','Из горки слепили <b>огромного снеговика</b>'],[900,'✨','Снеговика у склада украсили <b>гирляндой</b>']];
+function makeDepot(i){const [x,z,a]=DEPOTS[i],g=new THREE.Group();g.position.set(x,BASE,z);g.rotation.y=-a+Math.PI/2;scene.add(g);
+  for(const [w,d,ox,oz] of [[9,.3,0,-4.5],[9,.3,0,4.5],[.3,9,-4.5,0],[.3,9,4.5,0]]){bx(g,w,.9,d,DEP_WOOD,ox,.45,oz);bx(g,w+.1,.12,d+.1,DEP_SNOW,ox,.96,oz)}
+  for(const [ox,oz] of [[-4.5,-4.5],[4.5,-4.5],[-4.5,4.5],[4.5,4.5]])bx(g,.42,1.4,.42,DEP_DARK,ox,.7,oz);
+  bx(g,.18,2.4,.18,DEP_DARK,5.4,1.2,0);bx(g,2.2,1,.14,DEP_WOOD,5.4,2.3,0);bx(g,1.6,.12,.05,M(0xf4efe6),5.4,2.45,.09,false);bx(g,1.2,.12,.05,M(0xf4efe6),5.4,2.15,.09,false);bx(g,2.3,.14,.3,DEP_SNOW,5.4,2.86,0);
+  const heap=[];for(let k=0;k<5;k++){const b=bx(g,1,1,1,DEP_SNOW,0,0,0);b.visible=false;b.rotation.y=k*.18;heap.push(b)}
+  const flag=new THREE.Group();g.add(flag);bx(flag,.1,2.6,.1,DEP_DARK,0,1.3,0);bx(flag,1.1,.7,.05,M(0xc9363e),.55,2.25,0);flag.visible=false;
+  const sm=new THREE.Group();g.add(sm);bx(sm,4,3.4,4,DEP_SNOW,0,1.7,0);bx(sm,3,2.6,3,DEP_SNOW,0,4.6,0);bx(sm,2.2,2,2.2,DEP_SNOW,0,6.9,0);for(const ex of [-.45,.45])bx(sm,.3,.3,.1,0x1a1a24,ex,7.2,1.12,false);
+  const nose=bx(sm,.3,.3,1,M(0xe8682a),0,6.8,1.5);bx(sm,2.4,.3,2.4,0x22252c,0,7.95,0);bx(sm,1.6,1.2,1.6,0x22252c,0,8.7,0);bx(sm,1.7,.25,1.7,M(0xc9363e),0,8.25,0);bx(sm,3.2,.45,3.2,M(0xc9363e),0,5.95,0);
+  for(let k=0;k<3;k++)bx(sm,.3,.3,.1,0x1a1a24,0,4.2+k*.7,1.52,false);sm.visible=false;
+  const gl=new THREE.Group();g.add(gl);const gc=[0xff5a4e,0xffd27a,0x7ad8ff,0x8aff9a];for(let k=0;k<16;k++){const t=k/16*6.28;bx(gl,.26,.26,.26,glowM(gc[k%4]),Math.cos(t)*2.15,3.2+Math.sin(t*3)*.25,Math.sin(t)*2.15,false)}gl.visible=false;
+  depG[i]={g,heap,flag,sm,gl,top:0};updDepot(i)}
+function updDepot(i){const D=depG[i];if(!D)return;const c=(S.dep&&S.dep[i])||0,f=Math.min(1,Math.sqrt(c/420));let y=0;
+  D.heap.forEach((b,k)=>{const w=7.6-k*1.45,on=f>k*.12+.001;b.visible=on;if(!on)return;const h=.25+f*1.15;b.scale.set(w*(.55+.45*f),h,w*(.55+.45*f));b.position.set(0,y+h/2,0);y+=h});D.top=y;
+  const snow=c>=420;D.sm.visible=snow;D.sm.position.y=y*.6;D.gl.visible=c>=900;D.gl.position.y=y*.6;D.flag.visible=c>=180&&!snow;D.flag.position.set(.6,y,.4)}
+DEPOTS.forEach((_,i)=>makeDepot(i));
+
+/* ---- имена эльфов: табличка над головой, нажать — переименовать ---- */
+const ELF_NAMES=['Пуговка','Шишка','Бубенчик','Пряник','Искорка','Валенок','Мандаринка','Леденец','Сосулька','Ёлкин','Звёздочка','Варежка','Колокольчик','Снежик','Тимоша','Кокоша'];
+function elfName(i){S.elfN=S.elfN||[];const n=ELF_NAMES.length;return S.elfN[i]||ELF_NAMES[i%n]+(i>=n?' '+(1+Math.floor(i/n)):'')}
+let elfEditing=false;
+function elfTag(e,i){if(e.tag)return e.tag;const d=document.createElement('div');d.className='elfTag';d.textContent=elfName(i);d.style.display='none';$('#bubbles').appendChild(d);e.tag=d;
+  d.onpointerdown=ev=>ev.stopPropagation();
+  d.onclick=ev=>{ev.stopPropagation();if(d.querySelector('input'))return;elfEditing=true;const inp=document.createElement('input');inp.maxLength=18;inp.value=elfName(i);d.textContent='';d.appendChild(inp);inp.focus();inp.select();
+    const done=save=>{if(!d.contains(inp))return;const v=inp.value.trim();if(save&&v){S.elfN=S.elfN||[];S.elfN[i]=v;save&&banner('🧝','Теперь эльфа зовут <b>'+v.replace(/[<>&]/g,'')+'</b>')}d.textContent=elfName(i);elfEditing=false};
+    inp.onkeydown=k=>{k.stopPropagation();if(k.key==='Enter')done(true);if(k.key==='Escape')done(false)};inp.onblur=()=>done(true)};return d}
+function updElfTags(){const show=started&&!tour&&!modalOpen&&CAM.zoom>=.75;elves.forEach((e,i)=>{const d=elfTag(e,i);if(!show){if(!d.querySelector('input'))d.style.display='none';return}
+  const sc=toScreen(e.x,e.y+(e.m&&e.m.veh?4.6:2.9),e.z);const on=sc.in&&sc.x>-40&&sc.y>-20&&sc.x<innerWidth+40&&sc.y<innerHeight+20;d.style.display=on?'block':'none';if(on){d.style.transform=`translate(${sc.x}px,${sc.y}px) translate(-50%,-100%)`;if(!d.querySelector('input')&&d.textContent!==elfName(i))d.textContent=elfName(i)}});
+  if(show&&elves.length)hint('elfname','🧝','У эльфов есть имена','Над каждым эльфом — табличка с именем. Нажмите на неё, чтобы назвать эльфа по-своему.')}
 
 /* ================= СНЕЖОК ================= */
 /* ---- модель питомца из настроек ---- */
@@ -2488,7 +2538,7 @@ function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
   if(gust>.25&&Math.random()<gust*rdt*(bl?120:40)){const a=Math.random()*6.28,r=Math.random()*36,x=CAM.target.x+Math.cos(a)*r,z=CAM.target.z+Math.sin(a)*r;spawn({x,y:groundY(x,z)+.1,z,vx:Math.cos(windDir)*(5+Math.random()*4),vy:.3,vz:Math.sin(windDir)*(5+Math.random()*4),g:.1,drag:.3,life:1.6+Math.random()*1.2,s:3,a:.5,ground:true,c:WHITE})}
   if(started&&ptr.in&&!ptr.pan&&!tour){const h=pickVoxel();hasHit=!!h;if(h)hit=h}else hasHit=false;
   if(started&&!modalOpen){physAcc+=rdt;while(physAcc>=.05){physAcc-=.05;landPuffs=0;physTick()}}if(started)flushDirty(10);if(started&&!modalOpen)S.playSec=(S.playSec||0)+rdt;
-  if(started&&!modalOpen){updElves(dt,t);updPet(dt,t);const P=S.pet,dec=rdt/11*(1-.05*L('boots'));P.food=Math.max(0,P.food-dec);P.warm=Math.max(0,P.warm-dec*1.1);P.joy=Math.max(0,P.joy-dec*.9);playCd=Math.max(0,playCd-rdt)}
+  updElfTags();if(started&&!modalOpen){updElves(dt,t);updPet(dt,t);const P=S.pet,dec=rdt/11*(1-.05*L('boots'));P.food=Math.max(0,P.food-dec);P.warm=Math.max(0,P.warm-dec*1.1);P.joy=Math.max(0,P.joy-dec*.9);playCd=Math.max(0,playCd-rdt)}
   else if(!started)updPet(dt,t);
   if(started)updTour(rdt);if(started&&!modalOpen){updEvents(dt,t);updMyst(dt,t);updLand(dt,t);updPetPerks(dt,t);pumpH()}if(started)updHot(dt);if(started&&!modalOpen){updResidents(dt,t);updGolem(dt,t);updBirds(dt,t);updSleigh(dt,t);updDrops(dt);updRockets(dt);updFinale(rdt,t);
     const ns=nowS();if(ns>nextSleigh&&!modalOpen&&!tour){nextSleigh=ns+(S.relics.sleigh?70:120)+Math.random()*(S.relics.sleigh?30:90);launchSleigh()}
@@ -2546,7 +2596,7 @@ $('#start').onclick=()=>{initAudio();
   if(!hadSave&&!S.petMade){intro.classList.add('hide');openPetEditor(true,()=>{S.petMade=true;save();startRoom(()=>beginGame(true))})}else beginGame(false)};
 $('#roomGo').onclick=endRoom;$('#roomSkip').onclick=endRoom;
 requestAnimationFrame(frame);setTimeout(()=>$('#load').classList.add('hide'),200);
-window.__au=()=>[AC&&AC.state,mus&&+mus.gain.value.toFixed(2),sfx&&+sfx.gain.value.toFixed(2),S.music,S.sound];window.__note=showNote;window.__sim={digAt,tool,TOOLS,UPG,UKEYS,L,top,vox,id,toVX,toVZ,makeReward,applyReward,toolOk,TREQ,LAND,landCost,S,REQ,h0,NX,NZ,flakeMult,get gifts(){return gifts}};window.__pet={petXp,banner,hint};window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
+window.__au=()=>[AC&&AC.state,mus&&+mus.gain.value.toFixed(2),sfx&&+sfx.gain.value.toFixed(2),S.music,S.sound];window.__note=showNote;window.__sim={digAt,tool,TOOLS,UPG,UKEYS,L,top,vox,id,toVX,toVZ,makeReward,applyReward,toolOk,TREQ,LAND,landCost,S,REQ,h0,NX,NZ,flakeMult,get gifts(){return gifts}};window.__pet={petXp,banner,hint};window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={startHaul,poke:()=>{lastStrokeT=performance.now()/1000},DEPOTS,updDepot,makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
 </script>
 <div id="roomUI"><div class="vign"></div><p id="roomSub"></p><button class="btn" id="roomGo">Идти копать</button><button id="roomSkip">Пропустить</button></div><div id="roomFade"></div>
 </body>
