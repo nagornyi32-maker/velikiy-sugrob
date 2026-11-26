@@ -419,6 +419,11 @@ body.zen .snd.ui{opacity:.35!important;pointer-events:auto!important}
 .nbtns{display:flex;gap:10px;align-items:center}.nbtns .mrow{width:44px;height:44px;padding:0;font-size:22px;background:rgba(251,247,240,.9)}
 @media (prefers-reduced-motion:reduce){#mNote.open .paper,#mNote.open .nt{animation:none}}
 .bub.hot{background:rgba(251,247,240,.94);color:var(--snow);font-weight:600}.bub.hot em{font-style:normal}.bub.hot:after{border-top-color:rgba(251,247,240,.94)}.bub.hot.bite{background:var(--berry);color:#fff;animation:bite .35s ease-in-out infinite alternate}.bub.hot.bite:after{border-top-color:var(--berry)}@keyframes bite{to{transform:translate(-50%,-100%) scale(1.08)}}
+#hintCard{position:fixed;left:50%;bottom:86px;transform:translate(-50%,20px);z-index:12;display:flex;align-items:center;gap:14px;max-width:min(520px,92vw);padding:14px 14px 14px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:opacity .35s,transform .5s cubic-bezier(.2,.9,.25,1)}
+#hintCard.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#hintCard .hi{font-size:28px;flex:none}#hintCard h4{font-size:14.5px;font-weight:600;margin-bottom:3px}#hintCard p{font-size:12.5px;color:var(--muted);line-height:1.45}#hintCard>div{flex:1;min-width:0}#hintCard .btn{flex:none;width:auto!important;padding:10px 18px;white-space:nowrap}
+body.zen #hintCard{display:none}
+.ph .lv{font-size:11px;font-weight:600;color:var(--muted);margin-left:6px}.pxp{height:4px;border-radius:2px;background:var(--fill2);margin-top:5px;overflow:hidden}.pxp i{display:block;height:100%;background:var(--pine);transition:width .4s}
+#petState{display:block!important;font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.3}#petState b{color:var(--pine);font-weight:600}#petState.bad b{color:var(--berry)}
 </style>
 </head>
 <body class="intro">
@@ -430,7 +435,7 @@ body.zen .snd.ui{opacity:.35!important;pointer-events:auto!important}
 <div class="snd pane ui"><button class="ib" id="bMusic" title="Музыка" aria-label="Музыка"><svg class="i"><use href="#i-music"/></svg></button><button class="ib" id="bSound" title="Звуки" aria-label="Звуки"><svg class="i"><use href="#i-bell"/></svg></button><button class="ib" id="bMenu" title="Меню · Esc" aria-label="Меню"><svg class="i"><use href="#i-menu"/></svg></button></div>
 
 <section id="pet" class="pane ui" aria-label="Питомец Снежок">
-  <div class="ph"><div class="face" id="face" title="Настроить питомца"><i></i><i></i><u></u></div><div><h3 id="petName">Снежок</h3><p id="mood">Помогает искать подарки</p></div></div>
+  <div class="ph"><div class="face" id="face" title="Настроить питомца"><i></i><i></i><u></u></div><div style="flex:1;min-width:0"><h3><span id="petName">Снежок</span><span class="lv" id="petLvl">ур. 1</span></h3><div class="pxp"><i id="petXp"></i></div><span id="petState"></span><p id="mood">Помогает искать подарки</p></div></div>
   <div class="needs">
     <button class="need" id="nFood"><div class="ring"><svg viewBox="0 0 38 38"><circle class="bg" cx="19" cy="19" r="16"/><circle class="fg" cx="19" cy="19" r="16" stroke="#ffb458" stroke-dasharray="100.5"/></svg>🍪</div><span>Покормить</span><small id="cFood">40 ❄</small></button>
     <button class="need" id="nWarm"><div class="ring"><svg viewBox="0 0 38 38"><circle class="bg" cx="19" cy="19" r="16"/><circle class="fg" cx="19" cy="19" r="16" stroke="#f0785a" stroke-dasharray="100.5"/></svg>☕</div><span>Согреть</span><small id="cWarm">60 ❄</small></button>
@@ -489,6 +494,7 @@ body.zen .snd.ui{opacity:.35!important;pointer-events:auto!important}
   <div id="menuConfirm" style="display:none"><h2>Начать заново?</h2><div class="sub">Сотрётся весь прогресс: снежинки, инструменты, мешок, постройки, марки и питомец. Отменить это нельзя.</div>
     <div class="mlist"><button class="btn danger" id="mResetYes">Да, начать заново</button><button class="mrow" id="mResetNo">Отмена</button></div></div>
 </div></div>
+<div id="hintCard" class="pane"><span class="hi">💡</span><div><h4></h4><p></p></div><button class="btn sm" id="hintOk">Понятно</button></div>
 <div class="modal" id="mNote"><div class="note"><div class="paper" id="notePaper"><i class="fold"></i><div class="nt" id="noteText"></div><div class="nn" id="noteNum"></div></div>
   <div class="nbtns"><button class="mrow" id="notePrev" aria-label="Предыдущая">‹</button><button class="btn" id="noteClose">Сложить записку</button><button class="mrow" id="noteNext" aria-label="Следующая">›</button></div></div></div>
 <div class="modal" id="mCasino"><div class="mc pane"><button class="x" data-close aria-label="Закрыть"><svg class="i"><use href="#i-x"/></svg></button><h2>Снежное казино</h2><div class="sub">Три одинаковых — большой выигрыш, пара — ставка ×1,5. Только снежинки, никаких настоящих денег.</div>
@@ -631,7 +637,7 @@ function wsType(x,y,z){if(x<WS.x0||x>WS.x1||z<WS.z0||z>WS.z1||y<WS.y0||y>WS.ry)r
 for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){const wx=x+.5-NX/2,wz=z+.5-NZ/2,r=Math.hypot(wx,wz);
   const t=(r+fbm(wx*.03+3+SEED*17,wz*.03+7)*6)/MR,b=t<1?1-Math.pow(t,1.2):0;
   let h=BASE+PEAK*b+fbm(wx*.07+SEED*5,wz*.07)*1.8*Math.min(1,b*3);h0[z*NX+x]=top[z*NX+x]=Math.max(BASE,Math.round(h))}
-function genType(x,y,z){const w=wsType(x,y,z);if(w)return w;const h=h0[z*NX+x];if(y>=h)return 0;if(y===0)return 6;if(y<=2)return 5;if(h-1-y<1)return 1;if(ICE_Y.includes(y))return 4;return y<40?3:2}
+function genType(x,y,z){const w=wsType(x,y,z);if(w)return w;const h=h0[z*NX+x];if(y>=h)return 0;if(x>=WS.x0-2&&x<=WS.x1+2&&z>=WS.z0-2&&z<=WS.z1+2&&y>=1&&y<=WS.ry+2)return 5;if(y===0)return 6;if(y<=2)return 5;if(h-1-y<1)return 1;if(ICE_Y.includes(y))return 4;return y<40?3:2}
 const hpAt=(t,y)=>t>=5?HP[t]:Math.round(HP[t]*(1+Math.max(0,108-y)/55));
 for(let y=0;y<NY;y++)for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){const t=genType(x,y,z);if(t){const k=id(x,y,z);vox[k]=t;hp[k]=hpAt(t,y)}}
 const wsPct=()=>{let a=0;for(const k of WSRING)if(!vox[k]||vox[k]===7)a++;return a/WSRING.length};
@@ -1020,7 +1026,7 @@ const TOOLS0=[
  {n:'Северный ветер',d:'Сдувает сугробы целиком.',r:7,dmg:650,iv:.22,blade:0xd8ecff,handle:0x8fa6c8,bw:1.5,bl:1.1,magic:true,c:4000000000},
  {n:'Сердце зимы',d:'Сама зима копает за вас.',r:8,dmg:950,iv:.2,blade:0x9fe6ff,handle:0xffffff,bw:1.6,bl:1.2,magic:true,c:16000000000}
 ];
-const TOOLS=TOOLS0.map((t,i)=>i>=2?Object.assign({},t,{c:Math.round(t.c*Math.pow(1.25,i))}):t);
+const TOOLS=TOOLS0.map((t,i)=>i>=2?Object.assign({},t,{c:Math.round(t.c*Math.pow(1.55,i))}):t);
 const UPG={
  pow:{n:'Закалка',ic:'u-pow',d:l=>`Сила удара <b>+${l*15}%</b>`,max:25,cost:l=>250*Math.pow(1.48,l),tab:'tool'},
  reach:{n:'Размах',ic:'u-reach',d:l=>`Ширина удара <b>+${l*6}%</b>`,max:12,cost:l=>700*Math.pow(1.75,l),tab:'tool'},
@@ -1030,7 +1036,7 @@ const UPG={
  elves:{n:'Эльфы',ic:'u-elf',d:l=>`Помогают рядом с вами, пока вы копаете: <b>${l}</b> в деле${elfRate()>0?` · ≈${fmt(elfRate())}/мин`:''}`,max:8,cost:l=>4000*Math.pow(3.2,l),tab:'help'},
  skill:{n:'Эльфийская сноровка',ic:'u-skill',d:l=>{const t=elfTier(),nx=ELF_T[t+1];const can=Object.entries(ELF_REQ).filter(([k,q])=>q<=t).map(([k])=>LAYER[k].toLowerCase()).join(', ');return`Эльфы быстрее и сильнее <b>+${l*12}%</b> · копают: ${can}<br>Сейчас: ${ELF_T[t].n.toLowerCase()}${nx?`<br>С ${nx.lv} ур.: ${nx.n.toLowerCase()}`:''}`},max:15,cost:l=>3000*Math.pow(1.7,l),tab:'help'},
  lantern:{n:'Фонарь',ic:'u-lantern',d:l=>`Подарки светятся за <b>${[6,10,15,21,28,36][l]} м</b>`,max:5,cost:l=>1500*Math.pow(6,l),tab:'help'},
- sled:{n:'Санки',ic:'u-sled',d:l=>`Снежинок за кубик <b>×${f2(Math.pow(1.12,l))}</b>`,max:20,cost:l=>1000*Math.pow(1.85,l),tab:'help'},
+ sled:{n:'Санки',ic:'u-sled',d:l=>`Снежинок за кубик <b>×${f2(1+.06*l)}</b>`,max:20,cost:l=>1000*Math.pow(1.9,l),tab:'help'},
  drill:{n:'Бур',ic:'u-pow',d:l=>`По льду и фирну сильнее <b>+${l*25}%</b>`,max:15,cost:l=>2000*Math.pow(1.6,l),tab:'tool'},
  magnet:{n:'Магнит подарков',ic:'u-luck',d:l=>`Шанс, что подарок окажется на тир лучше: <b>${l*3}%</b>`,max:10,cost:l=>5000*Math.pow(1.9,l),tab:'help'},
  wisdom:{n:'Снежная мудрость',ic:'u-skill',d:l=>`Все снежинки <b>+${l}%</b> навсегда · без предела`,max:999,cost:l=>40000*Math.pow(1.32,l),tab:'help'},
@@ -1133,11 +1139,20 @@ function startMusic(){mBus=AC.createBiquadFilter();mBus.type='lowpass';mBus.freq
 /* ================= МНОЖИТЕЛИ ================= */
 const nowS=()=>Date.now()/1000;
 let blizzardUntil=0,goldUntil=0;
-const petMult=()=>1+((S.pet.food+S.pet.warm+S.pet.joy)/3)/330;
+const PLV=lv=>Math.round(40*Math.pow(lv,1.45));
+const petLv=()=>S.petLv||1;
+const petBad=()=>{const P=S.pet;return P.food<15||P.warm<15||P.joy<15};
+const petHappy=()=>{const P=S.pet;return P.food>60&&P.warm>60&&P.joy>60};
+const PERKS={2:['🐾','Нюх','Питомец время от времени чует подарок поблизости и показывает его светящимся столбом.'],3:['⛏️','Помощник','Когда питомцу весело, он сам роет ямки рядом с вами.'],4:['🎒','Добытчик','Раз в полторы минуты приносит вам мелкую находку.'],5:['🔥','Тёплый бок','Если питомцу тепло, окно комбо на 0,4 с длиннее.'],6:['🍀','Удача','Счастливый питомец даёт +5% к шансу, что подарок окажется на тир лучше.'],8:['💛','Лучший друг','Если все потребности выше 60 — снежинки +15%.'],10:['⭐','Хранитель','Нюх срабатывает вдвое чаще, а находки приносит чаще.']};
+const hasPerk=l=>petLv()>=l&&!petBad();
+const petMult=()=>petBad()?.85:(petHappy()?1.1:1)*(hasPerk(8)&&petHappy()?1.15:1);
+function petXp(n){S.petXp=(S.petXp||0)+n;while(S.petXp>=PLV(petLv())&&petLv()<10){S.petXp-=PLV(petLv());S.petLv=petLv()+1;const pk=PERKS[S.petLv];
+  fanfare('u');banner('⭐',`${PN()} подрос: <b>уровень ${S.petLv}</b>`);if(pk)hint('perk'+S.petLv,pk[0],`${PN()}: новое умение «${pk[1]}»`,pk[2])}}
+
 const festMult=()=>1+S.decos.reduce((a,id)=>a+DMAP[id].b,0);
 const blizzMult=()=>nowS()<blizzardUntil?2:1;
 const landMult=()=>1+.02*Object.values(S.land||{}).reduce((a,b)=>a+b,0);
-const flakeMult=()=>landMult()*(1+.01*L('wisdom'))*(EV.aurora>nowS()?1.5:1)*(S.relics&&S.relics.caracal?3:1)*(typeof horo!=='undefined'&&horo?2:1)*Math.pow(1.12,L('sled'))*petMult()*festMult()*blizzMult()*(1+.05*CL('bell'))*(1+.5*PRES);
+const flakeMult=()=>(1+.01*Math.min(12,S.orn||0))*landMult()*(1+.01*L('wisdom'))*(EV.aurora>nowS()?1.5:1)*(S.relics&&S.relics.caracal?3:1)*(typeof horo!=='undefined'&&horo?2:1)*(1+.06*L('sled'))*petMult()*festMult()*blizzMult()*(1+.05*CL('bell'))*(1+.5*PRES);
 const VAL=[0,2,3,5,12,0,0,0,0,0,0,0];
 
 /* ================= ЭЛЬФЫ ================= */
@@ -1331,14 +1346,14 @@ function updBirds(dt,t){for(const b of birds){b.t-=dt;
 
 /* ================= КОПАНИЕ ================= */
 let recent=[],recentElf=[],combo=0,lastStrokeT=-9,slow=0;
-const comboWin=()=>S.relics&&S.relics.clock?1e9:tool().iv+.9+.15*L('thermos')+.1*L('boots');
+const comboWin=()=>S.relics&&S.relics.clock?1e9:tool().iv+.9+.15*L('thermos')+.1*L('boots')+(hasPerk(5)&&S.pet.warm>50?.4:0);
 const tv=new THREE.Vector3();
 function toScreen(x,y,z){tv.set(x,y,z).project(cam);return{x:(tv.x+1)/2*innerWidth,y:(1-tv.y)/2*innerHeight,in:tv.z<1}}
 function digAt(cx,cy,cz,R,dmg,opt={}){const rem=[];let ice=false,cracked=0,blocked=0;
   const x0=Math.max(0,Math.floor(cx-R)),x1=Math.min(NX-1,Math.floor(cx+R)),y0=Math.max(1,Math.floor(cy-R)),y1=Math.min(NY-1,Math.floor(cy+R)),z0=Math.max(0,Math.floor(cz-R)),z1=Math.min(NZ-1,Math.floor(cz+R));
   for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++){const dx=x+.5-cx,dy=(y+.5-cy)*1.1,dz=z+.5-cz;if(dx*dx+dy*dy+dz*dz>R*R)continue;if(!canDig(x,z))continue;
     const k=id(x,y,z),t=vox[k];if(!t||t>=6)continue;if(t===5&&y<1)continue;{const rq=REQ[t]||0;if(opt.et!=null){if((ELF_REQ[t]||0)>opt.et){blocked=Math.max(blocked,rq);continue}}else if(S.tool<rq&&!(S.relics.crystal&&(t===3||t===4))){if(rq>blocked)blocked=rq;continue}}if(t===4)ice=true;hp[k]-=(t>=3?dmg*(1+.25*L('drill'))*(S.relics.crystal?6:1):dmg);
-    if(hp[k]<=0){vox[k]=0;hp[k]=0;rem.push([x,y,z,t]);if(t===4){S.ice++;S.cry=(S.cry||0)+1}if(y<=3&&h0[z*NX+x]>50)S.ground=true}else cracked++;markDirty(x,y,z)}
+    if(hp[k]<=0){vox[k]=0;hp[k]=0;rem.push([x,y,z,t]);if(t===4){S.ice++;S.iceAcc=(S.iceAcc||0)+1;if(S.iceAcc>=2){S.iceAcc=0;S.cry=(S.cry||0)+1}}if(y<=3&&h0[z*NX+x]>50)S.ground=true}else cracked++;markDirty(x,y,z)}
   if(!rem.length&&!cracked)return{n:0,gain:0,ice,blocked};
   if(!rem.length){flushDirty(6);return{n:0,gain:0,ice,cracked,blocked}}
   const cols=new Set();for(const r of rem){cols.add(r[2]*NX+r[0]);activate(r[0],r[1],r[2])}
@@ -1370,7 +1385,7 @@ function impact(){const T=tool(),s=stroke,now=performance.now()/1000;
   sndDig(r.n,r.ice,crit);if(r.n)sndCombo(combo);CAM.shake=crit?.35:Math.min(.12,.03+r.n*.002);
   const sc=toScreen(s.p.x,s.p.y+.6,s.p.z);
   if(r.n>0){if(EV.vein&&r.gain>0&&Math.hypot(lastDig.x-EV.vein.x,lastDig.z-EV.vein.z)<7){const ex=Math.round(r.gain*3);S.flakes+=ex;S.earned+=ex;popText(sc.x,sc.y-28,'Жила! +'+fmt(ex),true)}microFind(r.n,sc.x,sc.y)}
-  else if(!r.cracked&&r.blocked){const nw=performance.now();if(!impact.bt||nw-impact.bt>1100){impact.bt=nw;popText(sc.x,sc.y,`Нужна «${TOOLS[r.blocked].n}»`,false);try{tone(220,AC.currentTime,.02,.25,sfx)}catch(er){}}}
+  else if(!r.cracked&&r.blocked){hint('grade','🧊','Слой не по силам',`Этот снег слишком плотный. Нужен инструмент «${TOOLS[r.blocked].n}» — его можно купить в лавке, когда хватит снежинок и глубины.`);const nw=performance.now();if(!impact.bt||nw-impact.bt>1100){impact.bt=nw;popText(sc.x,sc.y,`Нужна «${TOOLS[r.blocked].n}»`,false);try{tone(220,AC.currentTime,.02,.25,sfx)}catch(er){}}}
   if(r.gain>0){popText(sc.x,sc.y,(crit?'Удачный удар!  +':'+')+fmt(r.gain),crit);flyFlakes(sc.x,sc.y,Math.min(4,1+Math.floor(r.n/12)))}else if(r.cracked)popText(sc.x,sc.y,'Трещина',false);
   if(crit)for(let k=0;k<26;k++){const a=Math.random()*6.28,sp=2+Math.random()*4;spawn({x:s.p.x,y:s.p.y+.3,z:s.p.z,vx:Math.cos(a)*sp,vy:3+Math.random()*5,vz:Math.sin(a)*sp,g:4,drag:1.4,life:1.2,s:4,a:1,fade:'sin',c:GOLD})}
   // камера мягко следует за местом копания
@@ -1442,16 +1457,28 @@ function flyFlakes(x,y,n){const w=$('#wallet .co').getBoundingClientRect(),tx=w.
     const mx=lerp(x,tx,.4)+(Math.random()-.5)*160,my=Math.min(y,ty)-60-Math.random()*80;
     const a=el.animate([{transform:`translate(${x}px,${y}px) scale(.6)`,opacity:0},{transform:`translate(${mx}px,${my}px) scale(1.1)`,opacity:1,offset:.45},{transform:`translate(${tx}px,${ty}px) scale(.5)`,opacity:.9}],{duration:700+i*90,easing:'cubic-bezier(.4,0,.6,1)'});
     a.onfinish=()=>{el.remove();const wl=$('#wallet');wl.classList.add('bump');setTimeout(()=>wl.classList.remove('bump'),110)}}}
-function banner(icon,html){const el=document.createElement('div');el.className='bn pane';el.innerHTML=`<span style="font-size:18px">${icon}</span><span>${html}</span>`;$('#banner').appendChild(el);setTimeout(()=>el.remove(),3500)}
+const BQ=[],BACT=[];
+function banner(icon,html,o={}){const key=icon+'|'+html;if(BQ.some(b=>b.key===key)||BACT.some(b=>b.key===key))return;BQ.push({icon,html,key,t:o.t||3400,lo:o.lo});
+  while(BQ.length>4){const i=BQ.findIndex(b=>b.lo);BQ.splice(i>=0?i:0,1)}pumpB()}
+function pumpB(){if(BACT.length>=2||!BQ.length)return;const b=BQ.shift(),el=document.createElement('div');el.className='bn pane';el.innerHTML=`<span style="font-size:18px">${b.icon}</span><span>${b.html}</span>`;$('#banner').appendChild(el);b.el=el;BACT.push(b);
+  el.animate([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'none'}],{duration:260,easing:'cubic-bezier(.2,.8,.3,1)'});
+  setTimeout(()=>{el.animate([{opacity:1},{opacity:0,transform:'translateY(-6px)'}],{duration:240}).onfinish=()=>{el.remove();BACT.splice(BACT.indexOf(b),1);setTimeout(pumpB,180)}},b.t+(BQ.length?0:600))}
+/* ---- подсказки при первом появлении нового ---- */
+const HQ=[];let hCur=null;
+function hint(id,ic,title,text){S.hints=S.hints||{};if(S.hints[id]||HQ.some(h=>h.id===id)||(hCur&&hCur.id===id))return;HQ.push({id,ic,title,text});pumpH()}
+function pumpH(){if(hCur||!HQ.length||!started)return;const h=hCur=HQ.shift();const el=$('#hintCard');el.querySelector('.hi').textContent=h.ic;el.querySelector('h4').textContent=h.title;el.querySelector('p').innerHTML=h.text;el.classList.add('on');try{emojify(el)}catch(e){}
+  try{const t=AC.currentTime;tone(1175,t,.03,.6,sfx);tone(1568,t+.09,.03,.8,sfx)}catch(e){}}
+function closeHint(){if(!hCur)return;S.hints[hCur.id]=1;save();$('#hintCard').classList.remove('on');hCur=null;setTimeout(pumpH,700)}
+
 
 /* ================= НАХОДКА ПОДАРКА ================= */
 let anims=[],modalOpen=false;
 const RAR={c:{n:'Обычный',col:'#cfc4ad',box:'#c9363e',rib:'#f4ead5'},u:{n:'Редкий',col:'#6aa585',box:'#1f4d3a',rib:'#f4ead5'},r:{n:'Драгоценный',col:'#8fb3d9',box:'#2f4f7a',rib:'#c9a34e'},l:{n:'Легендарный',col:'#c9a34e',box:'#8b1e2d',rib:'#c9a34e'}};
-function findGift(g){if(g.found)return;g.found=true;if(S.ballLost){S.ballLost=false;setTimeout(()=>petSay('Ой, рядом с подарком — наш мячик! Ура!',4.5),900)}S.found.push(gifts.indexOf(g));vox[id(g.x,g.y,g.z)]=0;activate(g.x,g.y,g.z);
+function findGift(g){if(g.found)return;g.found=true;setTimeout(()=>hint('gift','🎁','Подарок в мешке','Найденные подарки копятся в мешке (кнопка в доке). Открывайте когда удобно. Тиры: обычный, редкий, драгоценный, легендарный — в легендарных реликвии.'),900);if(S.ballLost){S.ballLost=false;setTimeout(()=>petSay('Ой, рядом с подарком — наш мячик! Ура!',4.5),900)}S.found.push(gifts.indexOf(g));vox[id(g.x,g.y,g.z)]=0;activate(g.x,g.y,g.z);
   anims.push({mesh:g.mesh,t:0,y0:g.mesh.position.y});g.mesh=null;chime();pet.react=1.5;elves.forEach(e=>e.cheer=1.2);
   const p=anims[anims.length-1].mesh.position,cl=[[3,.9,.8],[3,2.4,1.1],[.9,2.6,1.6],[1.2,1.8,3]];
   for(let k=0;k<60;k++){const a=Math.random()*6.28,s=2+Math.random()*6;spawn({x:p.x,y:p.y+.5,z:p.z,vx:Math.cos(a)*s,vy:4+Math.random()*8,vz:Math.sin(a)*s,g:5,drag:1.2,life:1.6+Math.random(),s:3+Math.random()*4,a:1,fade:'sin',c:cl[k%4]})}
-  let tier=g.rar;const ord=['c','u','r','l'];if((S.relics.compass||Math.random()<.03*L('magnet')+.02*CL('compass'))&&tier!=='l'&&tier!=='r')tier=ord[ord.indexOf(tier)+1];
+  let tier=g.rar;const ord=['c','u','r','l'];if((S.relics.compass||Math.random()<.03*L('magnet')+.02*CL('compass')+(hasPerk(6)&&petHappy()?.05:0))&&tier!=='l'&&tier!=='r')tier=ord[ord.indexOf(tier)+1];
   S.sack[tier]++;S.giftsFound=(S.giftsFound||0)+1;const sc=toScreen(p.x,p.y+.8,p.z);giftFly(sc.x,sc.y,tier);
   if(tier==='r'||tier==='l')banner('🎁',`В мешок: <b>${RAR[tier].n.toLowerCase()}</b> подарок`)}
 function giftFly(x,y,tier){const b=$('#dBox').getBoundingClientRect(),el=document.createElement('div');el.className='gfly';el.style.setProperty('--bc',RAR[tier].box);el.style.setProperty('--rc',RAR[tier].rib);fx.appendChild(el);
@@ -1530,7 +1557,7 @@ function popConfetti(){const el=document.createElement('div');const c=['#ffb458'
   const a=Math.random()*Math.PI*2,d=200+Math.random()*320;el.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d+200}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:1400+Math.random()*600,easing:'cubic-bezier(.2,.6,.4,1)'}).onfinish=()=>el.remove()}
 function claim(){const w=caseState.win,tier=caseState.box;S.sack[tier]=Math.max(0,S.sack[tier]-1);S.opened++;caseState=null;closeModals();applyReward(w)}
 function applyReward(w){
-  if(w.type==='relic'){S.relics[w.id]=true;RELICS[w.id].on&&RELICS[w.id].on();save();return}
+  if(w.type==='relic'){setTimeout(()=>hint('relic','🏺','Реликвия','Реликвии — уникальные сокровища с сильным постоянным эффектом. Все найденные видны в мешке, в разделе «Реликвии».'),1500);S.relics[w.id]=true;RELICS[w.id].on&&RELICS[w.id].on();save();return}
   if(w.type==='deco'&&S.decos.includes(w.id)){const amt=Math.round(ipm()*{c:1.5,u:5,r:18,l:60}[w.r||'u']);Object.assign(w,{type:'flakes',amt,e:'❄️',n:`${fmt(amt)} снежинок`})}
   if(w.type==='charm'&&CL(w.id)>=CMAX){const amt=Math.round(ipm()*{c:1.5,u:5,r:18,l:60}[w.r||'u']);Object.assign(w,{type:'flakes',amt,e:'❄️',n:`${fmt(amt)} снежинок`})}
   if(w.type==='box'){S.sack[w.box]++;banner('🎁',`В мешок: <b>${RAR[w.box].n.toLowerCase()}</b> подарок`)}
@@ -1616,10 +1643,12 @@ function petUi(){const P=S.pet;setRing('#nFood',P.food);setRing('#nWarm',P.warm)
   $('#cFood').textContent=S.inv.food>0?'есть '+S.inv.food:'40 ❄';$('#cWarm').textContent=S.inv.cocoa>0?'есть '+S.inv.cocoa:'60 ❄';$('#cJoy').textContent=playCd>0?'через '+Math.ceil(playCd)+' с':'бесплатно';$('#nJoy').disabled=playCd>0;
   $('#nFood').classList.toggle('low',P.food<35);$('#nWarm').classList.toggle('low',P.warm<35);$('#nJoy').classList.toggle('low',P.joy<35&&playCd<=0);
   $('#petMult').textContent='×'+f2(petMult());const m=(P.food+P.warm+P.joy)/3;
-  $('#mood').textContent=P.warm<35?'Замёрз и просит какао':P.food<35?'Проголодался':P.joy<35?'Заскучал, хочет поиграть':m>80?'Абсолютно счастлив':'Помогает искать подарки'}
-function feed(){initAudio();if(S.inv.food>0)S.inv.food--;else if(S.flakes>=40)S.flakes-=40;else return banner('❄','Нужно 40 снежинок на пряник');S.pet.food=Math.min(100,S.pet.food+35);S.pet.joy=Math.min(100,S.pet.joy+5);S.fed++;pet.eat=1.4;heart(pet.x,pet.y+1.4,pet.z);coin();petUi()}
-function warmUp(){initAudio();if(S.inv.cocoa>0)S.inv.cocoa--;else if(S.flakes>=60)S.flakes-=60;else return banner('❄','Нужно 60 снежинок на какао');S.pet.warm=Math.min(100,S.pet.warm+40);S.fed++;pet.eat=1.2;heart(pet.x,pet.y+1.4,pet.z,[3,1.8,1]);coin();petUi()}
-function play(){initAudio();if(playCd>0)return;S.pet.joy=Math.min(100,S.pet.joy+30);playCd=45;pet.react=1.5;heart(pet.x,pet.y+1.4,pet.z,[1.2,2.6,1.8],8);if(okS()){const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>tone(f,t+i*.12,.045,.9,sfx))}petUi()}
+  $('#mood').textContent=P.warm<35?'Замёрз и просит какао':P.food<35?'Проголодался':P.joy<35?'Заскучал, хочет поиграть':m>80?'Абсолютно счастлив':'Помогает искать подарки';
+  const ps=$('#petState');if(ps){const bad=petBad();ps.classList.toggle('bad',bad);ps.innerHTML=bad?`<b>Капризничает · снежинки −15%</b>, умения выключены`:petHappy()?`<b>Счастлив · снежинки ×${f2(petMult())}</b>`:`Ур. ${petLv()} · покормите, чтобы был счастлив`;
+    $('#petLvl').textContent='ур. '+petLv();$('#petXp').style.width=(petLv()>=10?100:(S.petXp||0)/PLV(petLv())*100)+'%'}}
+function feed(){initAudio();if(S.inv.food>0)S.inv.food--;else if(S.flakes>=40)S.flakes-=40;else return banner('❄','Нужно 40 снежинок на пряник');S.pet.food=Math.min(100,S.pet.food+35);S.pet.joy=Math.min(100,S.pet.joy+5);S.fed++;petXp(10);pet.eat=1.4;heart(pet.x,pet.y+1.4,pet.z);coin();petUi()}
+function warmUp(){initAudio();if(S.inv.cocoa>0)S.inv.cocoa--;else if(S.flakes>=60)S.flakes-=60;else return banner('❄','Нужно 60 снежинок на какао');S.pet.warm=Math.min(100,S.pet.warm+40);S.fed++;petXp(10);pet.eat=1.2;heart(pet.x,pet.y+1.4,pet.z,[3,1.8,1]);coin();petUi()}
+function play(){initAudio();if(playCd>0)return;S.pet.joy=Math.min(100,S.pet.joy+30);playCd=45;petXp(15);pet.react=1.5;heart(pet.x,pet.y+1.4,pet.z,[1.2,2.6,1.8],8);if(okS()){const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>tone(f,t+i*.12,.045,.9,sfx))}petUi()}
 $('#nFood').onclick=feed;$('#nWarm').onclick=warmUp;$('#nJoy').onclick=play;
 const bub=document.createElement('div');bub.className='bub';bub.style.display='none';$('#bubbles').appendChild(bub);let bubAct=null;bub.onclick=()=>bubAct&&bubAct();
 let sayT=0,sayTxt='';function petSay(t,sec=4){sayTxt=t;sayT=sec}
@@ -1643,15 +1672,15 @@ function renderShop(){const T=TOOLS[S.tool],nt=TOOLS[S.tool+1],eff=tool();let h=
   for(const k of UKEYS){const u=UPG[k];if(u.tab!==shopTab)continue;const l=L(k),c=l<u.max?Math.round(u.cost(l)):null;
     h+=`<div class="it"><div class="ic">${ico(u.ic)}</div><div><h3>${u.n}<small>${l} / ${u.max}</small></h3><p>${u.d(Math.min(u.max,l+(c==null?0:1)))}</p><div class="bar"><i style="width:${l/u.max*100}%"></i></div></div>${c==null?'<span class="max">Макс.</span>':`<button class="buy" data-buy="${k}" data-cost="${c}">${ico('i-flake')}${fmt(c)}</button>`}</div>`}
   $('#shopList').innerHTML=h;updShop()}
-const TREQ=[[0,0],[0,0],[3,0],[6,0],[10,0],[16,150],[24,500],[32,1300],[42,3000],[52,7000],[62,15000],[74,32000],[86,65000],[98,130000]];
+const TREQ=[[0,0],[0,0],[4,0],[8,0],[13,0],[20,300],[28,1000],[37,2500],[47,6000],[57,14000],[67,30000],[78,60000],[89,120000],[100,250000]];
 const toolOk=i=>{const q=TREQ[i]||[0,0];return S.deep>=q[0]&&(S.cry||0)>=q[1]};
 function affordable(tab){let n=0;if(tab==='tool'){const nt=TOOLS[S.tool+1];if(nt&&S.flakes>=nt.c&&toolOk(S.tool+1))n++}for(const k of UKEYS){const u=UPG[k];if(u.tab===tab&&L(k)<u.max&&S.flakes>=u.cost(L(k)))n++}return n}
 function updShop(){document.querySelectorAll('[data-land]').forEach(b=>b.disabled=S.flakes<+b.dataset.cost);document.querySelectorAll('[data-buy]').forEach(b=>b.disabled=S.flakes<+b.dataset.cost||(b.dataset.buy==='tool'&&!toolOk(S.tool+1)));const a=affordable('tool'),b=affordable('help'),ln=(()=>{let n=0;for(const l of LAND){const st=(S.land||{})[l.id]||0;if(st<l.st.length&&S.flakes>=landCost(l,st))n++}return n})();try{document.querySelector('[data-tab="land"]').classList.toggle('has',ln>0);$('#tb2').textContent=ln}catch(e){}
   $('#dShop').classList.toggle('has',a+b>0);$('#shopBadge').textContent=a+b;document.querySelector('[data-tab="tool"]').classList.toggle('has',a>0);$('#tb0').textContent=a;document.querySelector('[data-tab="help"]').classList.toggle('has',b>0);$('#tb1').textContent=b}
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{shopTab=t.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));tick();renderShop()});
-$('#shopList').addEventListener('click',e=>{const lb=e.target.closest('[data-land]');if(lb&&!lb.disabled){const l=LMAP[lb.dataset.land],c=+lb.dataset.cost;if(S.flakes<c)return;S.flakes-=c;shown=Math.min(shown,S.flakes);S.land[l.id]=(S.land[l.id]||0)+1;l.build(S.land[l.id]);chime();banner(l.e,`${l.n}: <b>${l.st[S.land[l.id]-1]}</b>`);renderShop();save();return}const b=e.target.closest('[data-buy]');if(!b||b.disabled)return;const c=+b.dataset.cost;if(S.flakes<c)return;if(b.dataset.buy==='tool'&&!toolOk(S.tool+1))return;S.flakes-=c;if(b.dataset.buy==='tool'){S.cry-=(TREQ[S.tool+1]||[0,0])[1]}shown=Math.min(shown,S.flakes);const k=b.dataset.buy;
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{shopTab=t.dataset.tab;if(shopTab==='land')hint('land','🏘️','Окрестности','Здесь за снежинки можно обустроить мир вокруг сугроба. Каждая ступень что-то строит и навсегда даёт +2% снежинок.');document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));tick();renderShop()});
+$('#shopList').addEventListener('click',e=>{const lb=e.target.closest('[data-land]');if(lb&&!lb.disabled){const l=LMAP[lb.dataset.land],c=+lb.dataset.cost;if(S.flakes<c)return;S.flakes-=c;shown=Math.min(shown,S.flakes);S.land[l.id]=(S.land[l.id]||0)+1;l.build(S.land[l.id]);if(l.id==='lake'&&S.land.lake===2)hint('fish','🎣','Подлёдная рыбалка','Подведите камеру к домику на озере и нажмите «Порыбачить». Когда клюнет — быстро жмите «Подсечь!».');if(l.id==='obs'&&S.land.obs===2)hint('scope','🔭','Телескоп','Приблизьте камеру к обсерватории и посмотрите в телескоп.');if(l.id==='bell'&&S.land.bell===2)hint('bellh','🔔','Колокол','У колокольни можно позвонить в колокол.');chime();banner(l.e,`${l.n}: <b>${l.st[S.land[l.id]-1]}</b>`);renderShop();save();return}const b=e.target.closest('[data-buy]');if(!b||b.disabled)return;const c=+b.dataset.cost;if(S.flakes<c)return;if(b.dataset.buy==='tool'&&!toolOk(S.tool+1))return;S.flakes-=c;if(b.dataset.buy==='tool'){S.cry-=(TREQ[S.tool+1]||[0,0])[1]}shown=Math.min(shown,S.flakes);const k=b.dataset.buy;
   if(k==='tool'){S.tool++;equip();banner('⛏',`Новый инструмент: <b>${TOOLS[S.tool].n}</b>`);const p=shovel.position;for(let i=0;i<30;i++){const a=Math.random()*6.28;spawn({x:p.x,y:p.y+1,z:p.z,vx:Math.cos(a)*3,vy:2+Math.random()*3,vz:Math.sin(a)*3,g:2,drag:1.5,life:1.2,s:4,a:1,fade:'sin',c:GOLD})}chime()}
-  else{S.up[k]++;if(k==='elves'){syncElves();banner('🧝','Новый <b>эльф</b> взялся за лопату')}coin()}
+  else{S.up[k]++;if(k==='elves'){syncElves();banner('🧝','Новый <b>эльф</b> взялся за лопату');hint('elves','🧝','Эльфы','Эльфы копают рядом с вами, пока копаете вы. Что именно они осилят, зависит от «Эльфийской сноровки».')}coin()}
   hlKey='';renderShop();save();tutStep('buy')});
 function toggleShop(){$('#shop').classList.toggle('closed');tick();if(!$('#shop').classList.contains('closed'))renderShop()}
 $('#dShop').onclick=$('#shopX').onclick=toggleShop;
@@ -1895,6 +1924,15 @@ function updGolem(dt,t){if(!S.relics.golem)return;if(!golem)golem=makeGolem();co
   else{G.AL.rotation.x+=(0-G.AL.rotation.x)*dt*4;G.AR.rotation.x=G.AL.rotation.x;G.head.rotation.y=Math.sin(G.phase*.6)*.4}
   G.y+=(groundY(G.x,G.z)-G.y)*Math.min(1,dt*6);G.g.position.set(G.x,G.y,G.z);G.g.rotation.y+=((G.yaw-G.g.rotation.y+Math.PI*3)%(Math.PI*2)-Math.PI)*Math.min(1,dt*4)}
 
+/* ---- умения питомца ---- */
+let sniffT=0,helpT=0,fetchT=0;const BEAC=[];
+function updPetPerks(dt,t){const ns=nowS();if(!sniffT){sniffT=ns+60;fetchT=ns+90}
+  if(hasPerk(2)&&ns>sniffT&&S.pet.food>40){sniffT=ns+(hasPerk(10)?75:150);const b=lastDig||{x:pet.x,z:pet.z};let best=null,bd=40;
+    for(const g of gifts){if(g.found)continue;const d=Math.hypot(wX(g.x+.5)-b.x,wZ(g.z+.5)-b.z);if(d<bd){bd=d;best=g}}
+    if(best){const x=wX(best.x+.5),z=wZ(best.z+.5),m=new THREE.Mesh(new THREE.BoxGeometry(.5,40,.5),new THREE.MeshBasicMaterial({color:new THREE.Color(2.4,1.8,.6),transparent:true,opacity:.55,depthWrite:false}));m.position.set(x,best.y+20,z);scene.add(m);BEAC.push({m,t:ns+40});petSay('Тут что-то есть! 🐾',3.5);hint('sniff','🐾','Питомец что-то учуял','Светящийся столб показывает, где под снегом спрятан подарок. Копайте к нему.')}}
+  for(let i=BEAC.length-1;i>=0;i--){const B=BEAC[i];B.m.material.opacity=.35+.2*Math.sin(t*3);if(ns>B.t){scene.remove(B.m);BEAC.splice(i,1)}}
+  if(hasPerk(3)&&S.pet.joy>50&&performance.now()/1000-lastStrokeT<20&&ns>helpT){helpT=ns+4;const vx=clamp(toVX(pet.x+Math.sin(t)*2),0,NX-1),vz=clamp(toVZ(pet.z+Math.cos(t)*2),0,NZ-1),vy=top[vz*NX+vx]-1;if(vy>3){const TT=tool();digAt(vx+.5,vy+.3,vz+.5,1.3,Math.max(5,TT.dmg*.25),{elf:true,et:1});pet.react=.6}}
+  if(hasPerk(4)&&ns>fetchT){fetchT=ns+(hasPerk(10)?50:90);const sc=toScreen(pet.x,pet.y+1.5,pet.z);if(sc.in){S.fNext=0;microFind(40,sc.x,sc.y);petSay('Я кое-что нашёл!',2.5)}}}
 /* ================= ВНЕЗАПНЫЕ СОБЫТИЯ ================= */
 const evBox=document.createElement('div');evBox.id='evt';evBox.className='ui';document.body.appendChild(evBox);
 const EVS=[];let nextEv=nowS()+45,evI=0;
@@ -1917,7 +1955,7 @@ const EVDEF={
       const ball=new THREE.Mesh(new THREE.SphereGeometry(.9,20,14),new THREE.MeshStandardMaterial({color:c,metalness:.7,roughness:.18,emissive:c,emissiveIntensity:.25}));g.add(ball);bx(g,.4,.35,.4,M(0xb8923a,{metalness:.8,roughness:.3}),0,.95,0);
       const y=surfAt(x,z)+1.1;g.position.set(x,y,z);g.scale.setScalar(1.3);scene.add(g);const e=evChip({id:'ornament',ic:'🎄',label:'Ёлочный шарик в снегу',until:nowS()+45,g,x,z,y});
       const b=document.createElement('div');b.className='bub sleigh';b.innerHTML='<span>🎄</span>Подобрать шарик';$('#bubbles').appendChild(b);e.bub=b;b.onclick=ev=>{S.orn=(S.orn||0)+1;burst(ev.clientX,ev.clientY);fanfare('u');
-        if(S.orn%12===0){S.sack.r+=2;banner('🎄','Коллекция из <b>12 шариков</b> собрана! Главная ёлка сияет · +2 драгоценных подарка')}else banner('🎄',`Шарик для Главной ёлки: <b>${S.orn%12} из 12</b>`);e.until=0;save()};banner('🎄','В снегу блестит <b>ёлочный шарик</b>');return e},
+        if(S.orn===12){S.sack.r+=2;banner('🎄','Все <b>12 шариков</b> собраны! Снежинки +12% навсегда и 2 драгоценных подарка')}else if(S.orn<12)banner('🎄',`Шарик ${S.orn} из 12 · <b>снежинки +${S.orn}%</b> навсегда`);else{const a=giveFl(2);banner('🎄',`Лишний шарик · +${fmt(a)} ❄️`)}e.until=0;save()};banner('🎄','В снегу блестит <b>ёлочный шарик</b>');hint('ornament','🎄','Ёлочные шарики','Подбирайте шарики, пока не исчезли. Каждый из 12 навсегда даёт +1% снежинок, а за полную коллекцию — 2 драгоценных подарка.');return e},
     upd(e,dt,t){e.g.rotation.y+=dt*1.5;e.g.position.y=e.y+Math.sin(t*2)*.25;const sc=toScreen(e.x,e.y+3,e.z);e.bub.style.display=sc.in?'flex':'none';e.bub.style.left=sc.x+'px';e.bub.style.top=sc.y+'px';if(Math.random()<dt*3)spawn({x:e.x+(Math.random()-.5)*2,y:e.y+1,z:e.z+(Math.random()-.5)*2,vx:0,vy:.6,vz:0,g:0,drag:.5,life:1,s:4,a:1,fade:'sin',c:GOLD})},
     end(e){scene.remove(e.g);e.bub.remove()}},
   hare:{w:2,go(){const g=new THREE.Group(),W=M(0xf6f4f0),P=M(0xf0b8c0);bx(g,.8,.6,1.1,W,0,.5,0);bx(g,.55,.5,.55,W,0,.95,.55);bx(g,.14,.6,.1,W,-.13,1.45,.5);bx(g,.14,.6,.1,W,.13,1.45,.5);bx(g,.06,.4,.02,P,-.13,1.45,.56,false);bx(g,.06,.4,.02,P,.13,1.45,.56,false);
@@ -1939,10 +1977,12 @@ const EVDEF={
         const notes=['Без подписи.','На бирке только снежинка.','Подписи нет. Ленточка голубая.','Бирка пустая. Пахнет хвоей.','«Для того, кто копает». И всё.'];banner('🎁',`${notes[Math.floor(Math.random()*notes.length)]} Внутри ${fmt(amt)} ❄️${extra}`);e.until=0;save()};banner('🎁','Рядом в снегу стоит <b>подарок</b>. Кто его оставил — непонятно');return e},
     upd(e,dt,t){const sc=toScreen(e.x,e.y+3,e.z);e.bub.style.display=sc.in?'flex':'none';e.bub.style.left=sc.x+'px';e.bub.style.top=sc.y+'px';e.g.rotation.y=Math.sin(t*.8)*.15},end(e){scene.remove(e.g);e.bub.remove()}},
   birds:{w:1,go(){try{for(let i=0;i<6;i++)tone([1319,1568,1760,2093][i%4],AC.currentTime+i*.18,.03,.8,sfx)}catch(er){}const amt=giveFl(.8);banner('🐦',`Снегири спели песенку · <b>+${fmt(amt)}</b> ❄️`);return evChip({id:'birds',ic:'🐦',label:'Песня снегирей',until:nowS()+4})}}};
+const EVH={starfall:['🌠','Звездопад','Звёзды падают в сугроб и сами приносят снежинки. Просто копайте рядом.'],aurora:['🌌','Северное сияние','Пока горит сияние, все снежинки ×1,5. Таймер — в полоске сверху.'],thaw:['🌤️','Оттепель','Снег мягкий: удары вдвое сильнее, но только 30 секунд.'],vein:['💠','Ледяная жила','Копайте там, где искрится голубым: снежинок вчетверо больше.'],
+  hare:['🐇','Заяц','Нажмите «Угостить зайца», пока он не убежал: питомцу достанутся угощения.'],letter:['✉️','Письмо снегиря','Выкопайте нужное число кубиков до конца таймера — получите подарок в мешок.'],golden:['✨','Золотой снег','Удачные удары (×3 снежинок) выпадают гораздо чаще.'],anon:['🎁','Чей-то подарок','Кто-то оставил вам подарок. Нажмите «Открыть подарок», пока он не исчез.']};
 function updEvents(dt,t){const ns=nowS();
   for(let i=EVS.length-1;i>=0;i--){const e=EVS[i],D=EVDEF[e.id];if(D.upd)D.upd(e,dt,t);if(ns>=e.until){D.end&&D.end(e);e.el.remove();EVS.splice(i,1)}else evText(e)}
   if(ns>nextEv&&!tour&&!fin&&started){nextEv=ns+45+Math.random()*45;const busy=new Set(EVS.map(e=>e.id)),pool=Object.entries(EVDEF).filter(([k])=>!busy.has(k));let sum=pool.reduce((a,[,d])=>a+d.w,0),x=Math.random()*sum;
-    for(const [k,d] of pool){x-=d.w;if(x<0){try{d.go()}catch(er){console.warn(er)}break}}}
+    for(const [k,d] of pool){x-=d.w;if(x<0){try{d.go();const H=EVH[k];if(H)hint('ev_'+k,H[0],H[1],H[2])}catch(er){console.warn(er)}break}}}
   // темп копания для писем
   if(!updEvents.s||ns-updEvents.s.t>15){const p=updEvents.s;if(p){const r=(S.cubes-p.c)/((ns-p.t)/60);S.cubesMin=Math.round((S.cubesMin||r)*.6+r*.4)}updEvents.s={t:ns,c:S.cubes}}}
 /* ---- мелкие находки при копании: приятная монотонность ---- */
@@ -1993,7 +2033,7 @@ function showNote(k){const list=S.notes||[];if(!list.length)return;k=(k+list.len
   $('#noteText').textContent='…'+txt;$('#noteNum').textContent=list.length>1?`${k+1} / ${list.length}`:'';$('#notePrev').style.visibility=$('#noteNext').style.visibility=list.length>1?'visible':'hidden';
   const m=$('#mNote');m.classList.remove('open');void m.offsetWidth;if(!modalOpen)openModal('#mNote');else m.classList.add('open');try{nz(AC.currentTime,{f:2600,q:.5,lpf:5000,a:.02,d:.5,v:.05})}catch(e){}}
 function showPaper(t){$('#noteText').textContent=t;$('#noteNum').textContent='';$('#notePrev').style.visibility=$('#noteNext').style.visibility='hidden';const m=$('#mNote');m.classList.remove('open');void m.offsetWidth;openModal('#mNote')}
-$('#noteClose').onclick=()=>closeModals();$('#notePrev').onclick=()=>showNote(showNote.k-1);$('#noteNext').onclick=()=>showNote(showNote.k+1);
+$('#noteClose').onclick=()=>closeModals();$('#hintOk').onclick=closeHint;$('#notePrev').onclick=()=>showNote(showNote.k-1);$('#noteNext').onclick=()=>showNote(showNote.k+1);
 const NOTES=['«…он стоит у кромки леса, когда никто не смотрит»','«…не копай до земли у середины. Там дверь»','«…считай удары колокола»','«…снеговик у домика не мой. Я его не лепил»','«…31.12. Если постучат — не открывай»'];
 function mystFind(){const r=Math.random();if(r<.006){S.notes=S.notes||[];const left=NOTES.map((n,i)=>i).filter(i=>!S.notes.includes(i));if(left.length){const i=left[0];S.notes.push(i);save();setTimeout(()=>showNote(S.notes.length-1),500);return true}}
   if(r>.995){S.bb=(S.bb||0)+1;banner('🔕','Чёрный колокольчик. Он не звенит.');return true}return false}
@@ -2375,7 +2415,7 @@ function hotClick(k){const h=HOTD[k];tick();
   else if(k==='fish'){if(fishSt)return;fishSt={t:nowS()+2+Math.random()*4,st:'wait'};h.b.querySelector('em').textContent='Ждём поклёвку…'}
   else if(k==='scope'){CAM.tZoom=Math.max(.2,CAM.tZoom*.6);const F=['В телескоп видно Большую Медведицу. Ковш смотрит прямо на сугроб.','Сириус мерцает голубым. Говорят, это фонарь того, кто ходит у леса.','Полярная звезда на месте. Значит, Дед Мороз тоже.','Видно, как над горой медленно плывёт сияние.','На Луне — пятно, похожее на снеговика.'];banner('🔭',S.wSeen?'У кромки леса мелькнул голубой огонёк. Или показалось.':F[Math.floor(Math.random()*F.length)])}
   else if(k==='bell'){S.rings=(S.rings||0)+1;try{const t=AC.currentTime;tone(262,t,.12,5,sfx);tone(262*2.4,t,.05,3,sfx);tone(262*3.01,t,.03,2,sfx)}catch(e){}if(S.rings%3===0)setTimeout(()=>{banner('🔔','Где-то вдалеке отозвался колокол.');try{tone(196,AC.currentTime,.05,4,sfx)}catch(e){}},2600)}}
-function updHot(dt){for(const k in HOTD){const h=HOTD[k];let show=false;if(started&&!modalOpen&&!tour&&h.on()&&CAM.zoom>=.45&&Math.hypot(h.x-CAM.target.x,h.z-CAM.target.z)<70){const sc=toScreen(h.x,groundY(h.x,h.z)+4,h.z);if(sc.in){show=true;h.b.style.left=sc.x+'px';h.b.style.top=sc.y+'px'}}h.b.style.display=show?'flex':'none'}
+function updHot(dt){for(const k in HOTD){const h=HOTD[k];let show=false;if(h.b.style.display==='flex')hint('hot','👆','С окружением можно взаимодействовать','Когда камера рядом, у почтового ящика, кормушки и других мест появляются кнопки. Загляните к домику у подножия.');if(started&&!modalOpen&&!tour&&h.on()&&CAM.zoom>=.45&&Math.hypot(h.x-CAM.target.x,h.z-CAM.target.z)<70){const sc=toScreen(h.x,groundY(h.x,h.z)+4,h.z);if(sc.in){show=true;h.b.style.left=sc.x+'px';h.b.style.top=sc.y+'px'}}h.b.style.display=show?'flex':'none'}
   if(fishSt){const b=HOTD.fish.b,em=b.querySelector('em');if(fishSt.st==='wait'&&nowS()>fishSt.t){fishSt.st='bite';fishSt.t=nowS()+1.4;em.textContent='Подсечь!';b.classList.add('bite');try{tone(1319,AC.currentTime,.05,.3,sfx)}catch(e){}}
     else if(fishSt.st==='bite'&&nowS()>fishSt.t){fishSt=null;em.textContent='Порыбачить';b.classList.remove('bite');banner('🎣','Сорвалась. Бывает.')}}}
 HOTD.fish.b.addEventListener('click',e=>{if(fishSt&&fishSt.st==='bite'){e.stopImmediatePropagation();fishSt=null;const b=HOTD.fish.b;b.classList.remove('bite');b.querySelector('em').textContent='Порыбачить';
@@ -2409,9 +2449,9 @@ function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
   if(gust>.25&&Math.random()<gust*rdt*(bl?120:40)){const a=Math.random()*6.28,r=Math.random()*36,x=CAM.target.x+Math.cos(a)*r,z=CAM.target.z+Math.sin(a)*r;spawn({x,y:groundY(x,z)+.1,z,vx:Math.cos(windDir)*(5+Math.random()*4),vy:.3,vz:Math.sin(windDir)*(5+Math.random()*4),g:.1,drag:.3,life:1.6+Math.random()*1.2,s:3,a:.5,ground:true,c:WHITE})}
   if(started&&ptr.in&&!ptr.pan&&!tour){const h=pickVoxel();hasHit=!!h;if(h)hit=h}else hasHit=false;
   if(started&&!modalOpen){physAcc+=rdt;while(physAcc>=.05){physAcc-=.05;landPuffs=0;physTick()}}if(started)flushDirty(10);if(started&&!modalOpen)S.playSec=(S.playSec||0)+rdt;
-  if(started&&!modalOpen){updElves(dt,t);updPet(dt,t);const P=S.pet,dec=rdt/55*(1-.06*L('boots'));P.food=Math.max(0,P.food-dec);P.warm=Math.max(0,P.warm-dec*1.1);P.joy=Math.max(0,P.joy-dec*.9);playCd=Math.max(0,playCd-rdt)}
+  if(started&&!modalOpen){updElves(dt,t);updPet(dt,t);const P=S.pet,dec=rdt/11*(1-.05*L('boots'));P.food=Math.max(0,P.food-dec);P.warm=Math.max(0,P.warm-dec*1.1);P.joy=Math.max(0,P.joy-dec*.9);playCd=Math.max(0,playCd-rdt)}
   else if(!started)updPet(dt,t);
-  if(started)updTour(rdt);if(started&&!modalOpen){updEvents(dt,t);updMyst(dt,t);updLand(dt,t);}if(started)updHot(dt);if(started&&!modalOpen){updResidents(dt,t);updGolem(dt,t);updBirds(dt,t);updSleigh(dt,t);updDrops(dt);updRockets(dt);updFinale(rdt,t);
+  if(started)updTour(rdt);if(started&&!modalOpen){updEvents(dt,t);updMyst(dt,t);updLand(dt,t);updPetPerks(dt,t);pumpH()}if(started)updHot(dt);if(started&&!modalOpen){updResidents(dt,t);updGolem(dt,t);updBirds(dt,t);updSleigh(dt,t);updDrops(dt);updRockets(dt);updFinale(rdt,t);
     const ns=nowS();if(ns>nextSleigh&&!modalOpen&&!tour){nextSleigh=ns+(S.relics.sleigh?70:120)+Math.random()*(S.relics.sleigh?30:90);launchSleigh()}
     if(ns>nextBlizz){nextBlizz=ns+300+Math.random()*180;startBlizzard(40)}
     if(S.decos.includes('fireworks')&&ns>nextFw){nextFw=ns+10+Math.random()*12;const s=SLOTS[DMAP.fireworks.slot];for(let i=0;i<1+Math.floor(Math.random()*3);i++)setTimeout(()=>firework(s[0]+(Math.random()-.5)*8,s[1]+(Math.random()-.5)*8),i*400)}}
@@ -2436,7 +2476,7 @@ function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
     updShop();petUi();checkAch();$('#dStock').classList.toggle('has',stockReady());$('#face').classList.toggle('blink',(t%3.8)<.15);
     $('#dBox').classList.toggle('has',sackN()>0);{const a=advAvail();$('#dAdv').classList.toggle('has',a>0);$('#advBadge').textContent=a}$('#boxBadge').textContent=sackN();
     if(hasHit){const kk=id(hit.x,hit.y,hit.z),ty=vox[kk],T=tool();const cs=['','#f5f8fc','#e2e9f3','#c6d3e7','#a3d4f0','#5e4838','#3b302a'];
-      {const rq=REQ[ty]||0,lk=S.tool<rq&&!(S.relics.crystal&&(ty===3||ty===4));$('#layName').innerHTML=(LAYER[ty]||'')+(lk?` · <b style="color:var(--berry)">нужна «${TOOLS[rq].n}»</b>`:'')}$('#layDot').style.background=cs[ty]||'#fff';const n=ty>=5?0:Math.ceil(hp[kk]/T.dmg);
+      {if((S.cry||0)>0)hint('cry','💠','Ледяные кристаллы','Кристаллы добываются из ледяных пластов. Они нужны, чтобы купить мощные инструменты, начиная с шестого.');const rq=REQ[ty]||0,lk=S.tool<rq&&!(S.relics.crystal&&(ty===3||ty===4));$('#layName').innerHTML=(LAYER[ty]||'')+(lk?` · <b style="color:var(--berry)">нужна «${TOOLS[rq].n}»</b>`:'')}$('#layDot').style.background=cs[ty]||'#fff';const n=ty>=5?0:Math.ceil(hp[kk]/T.dmg);
       $('#layHint').textContent=ty>=5?'не копается':n<=1?'с одного удара':`нужно ${n} удар${n<5?'а':'ов'}`;
       $('#dNow').textContent='глубина '+f1(Math.max(0,h0[hit.z*NX+hit.x]-hit.y-1))+' м';$('#chip').style.opacity=started?1:''}else $('#chip').style.opacity=started?.6:''}
 }
@@ -2445,7 +2485,7 @@ function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
 renderShop();petUi();renderFest();updCasinoBtn();if(PRES>0)$('#introSub').textContent=`Снегопад №${PRES+1}. Гора выросла, подарки лежат по-новому, а праздник ждёт вас у подножия.`;if(S.decos.includes('aurora'))aurora.visible=true;
 if(hadSave){$('#start').textContent='Продолжить';const away=(Date.now()-S.last)/1000;
   if(away>60){const P=S.pet,dec=Math.min(away/55,60);P.food=Math.max(15,P.food-dec);P.warm=Math.max(15,P.warm-dec);P.joy=Math.max(15,P.joy-dec);
-    if(L('elves')>0){const b=Math.round(Math.max((S.elfPm||0)*Math.min(away,7200)/60*.6,L('elves')*Math.min(away,7200)*.8*(1+.12*L('skill'))*Math.pow(1.12,L('sled'))));S.flakes+=b;S.earned+=b;setTimeout(()=>banner('🧝',`Пока вас не было, эльфы накопали <b>${fmt(b)}</b>`),1600)}}}
+    if(L('elves')>0){const b=Math.round(Math.max((S.elfPm||0)*Math.min(away,7200)/60*.6,L('elves')*Math.min(away,7200)*.8*(1+.12*L('skill'))*(1+.06*L('sled'))));S.flakes+=b;S.earned+=b;setTimeout(()=>banner('🧝',`Пока вас не было, эльфы накопали <b>${fmt(b)}</b>`),1600)}}}
 shown=S.flakes;equip();syncElves();syncResidents(false);try{buildLand()}catch(e){console.warn(e)}renderPortrait();
 // вступление
 const intro=$('#intro'),lines=[...document.querySelectorAll('#intro .ln')];let introT=[];
@@ -2459,6 +2499,7 @@ function beginGame(fresh){started=true;document.body.classList.remove('intro');i
   CAM.tAng=Math.round((CAM.ang-Math.PI/4)/(Math.PI/2))*(Math.PI/2)+Math.PI/4;CAM.tZoom=1;CAM.tTarget.set(10,0,24);
   const ox=Math.sin(CAM.tAng),oz=Math.cos(CAM.tAng);pet.x=10+ox*22;pet.z=24+oz*22;pet.tx=10+ox*4;pet.tz=24+oz*4;
   nextSleigh=nowS()+75;nextBlizz=nowS()+240;
+  setTimeout(()=>hint('pet','🐾','Ваш питомец','Он голодает, мёрзнет и скучает каждые несколько минут. Счастливый питомец даёт больше снежинок, а с уровнями учится помогать: чует подарки, роет ямки, приносит находки.'),9000);
   if(fresh){S.ballLost=true;save();setTimeout(()=>petSay('Мячик улетел в сугроб! Откопаем его?',4.5),1300)}else setTimeout(()=>petSay('Ура, ты вернулся!',3),1400);
   if(migrated)setTimeout(()=>banner('📦','Прогресс из прошлой версии перенесён. <b>Гора новая</b> — копаем заново!'),2200);
   if(advAvail())setTimeout(()=>banner('🗓️','В адвент-календаре ждёт <b>новое окошко</b>'),3600)}
@@ -2466,7 +2507,7 @@ $('#start').onclick=()=>{initAudio();
   if(!hadSave&&!S.petMade){intro.classList.add('hide');openPetEditor(true,()=>{S.petMade=true;save();startRoom(()=>beginGame(true))})}else beginGame(false)};
 $('#roomGo').onclick=endRoom;$('#roomSkip').onclick=endRoom;
 requestAnimationFrame(frame);setTimeout(()=>$('#load').classList.add('hide'),200);
-window.__au=()=>[AC&&AC.state,mus&&+mus.gain.value.toFixed(2),sfx&&+sfx.gain.value.toFixed(2),S.music,S.sound];window.__note=showNote;window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
+window.__au=()=>[AC&&AC.state,mus&&+mus.gain.value.toFixed(2),sfx&&+sfx.gain.value.toFixed(2),S.music,S.sound];window.__note=showNote;window.__pet={petXp,banner,hint};window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
 </script>
 <div id="roomUI"><div class="vign"></div><p id="roomSub"></p><button class="btn" id="roomGo">Идти копать</button><button id="roomSkip">Пропустить</button></div><div id="roomFade"></div>
 </body>
