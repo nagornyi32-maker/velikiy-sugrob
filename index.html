@@ -790,6 +790,7 @@ function physTick(){if(!active.size)return;const arr=[...active];active.clear();
     if(landPuffs<10&&Math.random()<.5){landPuffs++;puff(wX(nx+.5),ny+.2,wZ(nz+.5),1,10)}}
   if(moves>30&&AC&&S.sound&&Math.random()<.4)sndSlide(Math.min(1,moves/300))}
 
+const cvEl=document.getElementById('c');const FIELD_CUR=`url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><circle cx="14" cy="14" r="9" fill="rgba(255,255,255,.35)" stroke="#2b2420" stroke-opacity=".55" stroke-width="1.5"/><circle cx="14" cy="14" r="9" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="0"/><circle cx="14" cy="14" r="2" fill="#c9363e"/></svg>')}") 14 14, crosshair`;
 /* ---- бескрайнее поле и ели ---- */
 {const m=new THREE.MeshStandardMaterial({color:COL[1],roughness:.9});sparkle(m);const W=NX,big=1400;
  for(const [x,z,w,d] of [[0,-(W/2+big/2),big*2+W,big],[0,W/2+big/2,big*2+W,big],[-(W/2+big/2),0,big,W],[W/2+big/2,0,big,W]]){
@@ -2485,7 +2486,7 @@ function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
   animated.forEach(f=>f(t));
   for(const id in decoObj){const g=decoObj[id];if(g.userData.steam&&Math.random()<.1){const sp=g.userData.steam[Math.floor(Math.random()*2)];const v=new THREE.Vector3(sp[0],sp[1],sp[2]).applyMatrix4(g.matrixWorld);spawn({x:v.x,y:v.y,z:v.z,vx:0,vy:.8,vz:0,g:-.1,drag:.5,life:2,s:6,a:.25,grow:1,c:WHITE})}}
   poseShovel(dt,t);updHighlight();hl.material.opacity=.24+Math.sin(t*5)*.07;
-  aimRing.visible=hasHit&&started&&!tour&&!modalOpen;if(aimRing.visible){const T=tool(),n=hit.n;aimRing.position.set(wX(hit.x+.5)+n[0]*.53,hit.y+.5+n[1]*.53,wZ(hit.z+.5)+n[2]*.53);
+  aimRing.visible=hasHit&&started&&!tour&&!modalOpen;{const want=aimRing.visible?'none':'';if(cvEl.dataset.cur!==want){cvEl.dataset.cur=want;cvEl.style.cursor=want||FIELD_CUR}}if(aimRing.visible){const T=tool(),n=hit.n;aimRing.position.set(wX(hit.x+.5)+n[0]*.53,hit.y+.5+n[1]*.53,wZ(hit.z+.5)+n[2]*.53);
     aimRing.lookAt(aimRing.position.x+n[0],aimRing.position.y+n[1],aimRing.position.z+n[2]);const sc=T.r*(1+(ptr.down||autoDig?Math.sin(t*14)*.04:0));aimRing.scale.set(sc,sc,1);aimRing.userData.dot.scale.setScalar(1/sc);{const w=.09/sc,[rr,rc]=aimRing.userData.rings;const k=Math.round(w*400);if(aimRing.userData.k!==k){aimRing.userData.k=k;rr.geometry.dispose();rr.geometry=new THREE.RingGeometry(1-w,1,64);rc.geometry.dispose();rc.geometry=new THREE.RingGeometry(1-w*1.9,1-w,64)}}}
   let hi=0;if(hasHit){const LR=S.relics.compass?70:[6,10,15,21,28,36][L('lantern')]*(1+.1*CL('compass')),hx=hit.x,hz=hit.z;for(const g of gifts){if(g.found||!g.mesh||hi>=hintSpr.length)continue;if(Math.abs(g.x-hx)>LR||Math.abs(g.z-hz)>LR)continue;const d=Math.hypot(g.x+.5-hx,g.z+.5-hz);if(d>LR)continue;
     const s=hintSpr[hi++];s.visible=true;const wx=wX(g.x+.5),wz=wZ(g.z+.5);s.position.set(wx,groundY(wx,wz)+.3,wz);const q=1-d/LR;s.material.opacity=q*(.45+.35*Math.sin(t*3+g.x));s.scale.setScalar(1.4+q*1.8)}}
