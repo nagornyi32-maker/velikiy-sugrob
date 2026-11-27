@@ -419,6 +419,9 @@ body.zen .snd.ui{opacity:.35!important;pointer-events:auto!important}
 .nbtns{display:flex;gap:10px;align-items:center}.nbtns .mrow{width:44px;height:44px;padding:0;font-size:22px;background:rgba(251,247,240,.9)}
 @media (prefers-reduced-motion:reduce){#mNote.open .paper,#mNote.open .nt{animation:none}}
 .bub.hot{background:rgba(251,247,240,.94);color:var(--snow);font-weight:600}.bub.hot em{font-style:normal}.bub.hot:after{border-top-color:rgba(251,247,240,.94)}.bub.hot.bite{background:var(--berry);color:#fff;animation:bite .35s ease-in-out infinite alternate}.bub.hot.bite:after{border-top-color:var(--berry)}@keyframes bite{to{transform:translate(-50%,-100%) scale(1.08)}}
+#nameCard{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top));transform:translate(-50%,-14px);z-index:80;display:flex;align-items:center;gap:14px;width:min(440px,92vw);padding:14px 14px 14px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:opacity .3s,transform .45s cubic-bezier(.2,.9,.25,1)}
+#nameCard.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}#nameCard .hi{font-size:26px}#nameCard .ncb{flex:1;min-width:0}#nameCard h4{margin:0 0 7px;font-size:14px}
+#nameCard .ncr{display:flex;gap:6px}#nameCard input{flex:1;min-width:0;font:inherit;font-size:16px;font-weight:700;color:inherit;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(60,40,30,.16);background:rgba(255,255,255,.75);outline:0}#nameCard input:focus{border-color:rgba(201,54,62,.55)}#nameCard .btn{width:auto!important}
 #hintCard{position:fixed;left:50%;bottom:86px;transform:translate(-50%,20px);z-index:12;display:flex;align-items:center;gap:14px;max-width:min(520px,92vw);padding:14px 14px 14px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:opacity .35s,transform .5s cubic-bezier(.2,.9,.25,1)}
 #hintCard.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#hintCard .hi{font-size:28px;flex:none}#hintCard h4{font-size:14.5px;font-weight:600;margin-bottom:3px}#hintCard p{font-size:12.5px;color:var(--muted);line-height:1.45}#hintCard>div{flex:1;min-width:0}#hintCard .btn{flex:none;width:auto!important;padding:10px 18px;white-space:nowrap}
 body.zen #hintCard{display:none}
@@ -445,6 +448,8 @@ button{touch-action:manipulation}
   .modal{align-items:flex-end}
   #mNote{align-items:center}.paper{padding:34px 26px 30px}
   #hintCard{bottom:calc(126px + env(safe-area-inset-bottom));left:8px;right:8px;transform:translateY(20px);max-width:none}#hintCard.on{transform:none}
+  #hintCard{flex-wrap:wrap;gap:6px 12px;padding:12px 14px}#hintCard .hi{font-size:22px}#hintCard>div{flex:1 1 calc(100% - 46px)!important}#hintCard h4{font-size:14px}#hintCard p{font-size:12.5px;line-height:1.4}#hintCard .btn{margin-left:auto;padding:7px 16px}
+  #nameCard{top:calc(78px + env(safe-area-inset-top));padding:12px}#nameCard .hi{display:none}
   #combo{top:calc(150px + env(safe-area-inset-top))!important}
   .bub{font-size:12px}
   #intro h1{font-size:44px!important}
@@ -523,6 +528,7 @@ button{touch-action:manipulation}
   <div id="menuConfirm" style="display:none"><h2>Начать заново?</h2><div class="sub">Сотрётся весь прогресс: снежинки, инструменты, мешок, постройки, марки и питомец. Отменить это нельзя.</div>
     <div class="mlist"><button class="btn danger" id="mResetYes">Да, начать заново</button><button class="mrow" id="mResetNo">Отмена</button></div></div>
 </div></div>
+<div id="nameCard" class="pane"><span class="hi">🧝</span><div class="ncb"><h4>Как зовут нового эльфа?</h4><div class="ncr"><input id="ncIn" maxlength="18" autocomplete="off" enterkeyhint="done"><button class="btn sm ghost" id="ncDice" title="Другое имя">🎲</button></div></div><button class="btn sm" id="ncOk">Готово</button></div>
 <div id="hintCard" class="pane"><span class="hi">💡</span><div><h4></h4><p></p></div><button class="btn sm" id="hintOk">Понятно</button></div>
 <div class="modal" id="mNote"><div class="note"><div class="paper" id="notePaper"><i class="fold"></i><div class="nt" id="noteText"></div><div class="nn" id="noteNum"></div></div>
   <div class="nbtns"><button class="mrow" id="notePrev" aria-label="Предыдущая">‹</button><button class="btn" id="noteClose">Сложить записку</button><button class="mrow" id="noteNext" aria-label="Следующая">›</button></div></div></div>
@@ -667,7 +673,7 @@ for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){const wx=x+.5-NX/2,wz=z+.5-NZ/2,r=Mat
   const t=(r+fbm(wx*.03+3+SEED*17,wz*.03+7)*6)/MR,b=t<1?1-Math.pow(t,1.55):0;
   let h=BASE+PEAK*b+fbm(wx*.07+SEED*5,wz*.07)*1.8*Math.min(1,b*3);h0[z*NX+x]=top[z*NX+x]=Math.max(BASE,Math.round(h))}
 function genType(x,y,z){const w=wsType(x,y,z);if(w)return w;const h=h0[z*NX+x];if(y>=h)return 0;if(x>=WS.x0-2&&x<=WS.x1+2&&z>=WS.z0-2&&z<=WS.z1+2&&y>=1&&y<=WS.ry+2)return 5;if(y===0)return 6;if(y<=2)return 5;if(h-1-y<1)return 1;if(ICE_Y.includes(y))return 4;return y<40?3:2}
-const hpAt=(t,y,x,z)=>{if(t>=5)return HP[t];const d=h0[z*NX+x]-1-y;return Math.round(HP[t]*Math.min(9,1+Math.max(0,d-4)/9))};
+const hpAt=(t,y)=>t>=5?HP[t]:Math.round(HP[t]*(1+Math.max(0,80-y)/9));
 for(let y=0;y<NY;y++)for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){const t=genType(x,y,z);if(t){const k=id(x,y,z);vox[k]=t;hp[k]=hpAt(t,y,x,z)}}
 const wsPct=()=>{let a=0;for(const k of WSRING)if(!vox[k]||vox[k]===7)a++;return a/WSRING.length};
 const sol=(x,y,z)=>{if(y<0)return 6;if(y>=NY)return 0;if(x<0||z<0||x>=NX||z>=NZ)return y<BASE?2:0;return vox[(y*NZ+z)*NX+x]};
@@ -694,9 +700,9 @@ for(const g of gifts){const k=id(g.x,g.y,g.z);vox[k]=7;hp[k]=HP[7]}
 /* ================= РЕНДЕР ================= */
 const canvas=$('#c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-const MOBILE=matchMedia('(pointer:coarse)').matches||Math.min(innerWidth,innerHeight)<600;renderer.setPixelRatio(Math.min(devicePixelRatio,MOBILE?1.25:1.75));
+const MOBILE=matchMedia('(pointer:coarse)').matches||Math.min(innerWidth,innerHeight)<600;const DPR_MAX=Math.min(devicePixelRatio,2),DPR_MIN=Math.min(DPR_MAX,MOBILE?1.1:1);let dpr=Math.min(DPR_MAX,MOBILE?1.75:2);renderer.setPixelRatio(dpr);
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.98;
-renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=MOBILE?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;if(MOBILE)renderer.shadowMap.autoUpdate=false;
 const scene=new THREE.Scene();const U={time:{value:0}};
 const FOGC=new THREE.Color(0x1a2142);scene.fog=new THREE.Fog(FOGC,520,900);
 const bgCv=document.createElement('canvas'),bgTex=new THREE.CanvasTexture(bgCv);bgTex.colorSpace=THREE.SRGBColorSpace;scene.background=bgTex;
@@ -706,15 +712,15 @@ function drawSky(){const W=Math.round(innerWidth/1.5),Hh=Math.round(innerHeight/
   g.globalAlpha=1;bgTex.needsUpdate=true}
 
 const cam=new THREE.OrthographicCamera(-1,1,1,-1,1,1000);scene.add(cam);
-const VH0=40;
+const VH0=40;const PORT=()=>{const a=innerWidth/innerHeight;return a<1?Math.max(1,.72/a):1};
 const CAM={ang:Math.PI/4-.9,tAng:Math.PI/4-.9,elev:.64,dist:520,zoom:.1,tZoom:.1,target:new THREE.Vector3(0,80,0),tTarget:new THREE.Vector3(0,80,0),shake:0};
 function placeCam(){const c=CAM,sx=(Math.random()-.5)*c.shake,sy=(Math.random()-.5)*c.shake;
   cam.position.set(c.target.x+Math.sin(c.ang)*Math.cos(c.elev)*c.dist+sx,c.target.y+Math.sin(c.elev)*c.dist+sy,c.target.z+Math.cos(c.ang)*Math.cos(c.elev)*c.dist);
-  cam.lookAt(c.target.x+sx,c.target.y+sy,c.target.z);const vh=VH0/c.zoom,a=innerWidth/innerHeight;cam.left=-vh*a/2;cam.right=vh*a/2;cam.top=vh/2;cam.bottom=-vh/2;cam.updateProjectionMatrix()}
+  cam.lookAt(c.target.x+sx,c.target.y+sy,c.target.z);const vh=VH0*PORT()/c.zoom,a=innerWidth/innerHeight;cam.left=-vh*a/2;cam.right=vh*a/2;cam.top=vh/2;cam.bottom=-vh/2;cam.updateProjectionMatrix()}
 
 const hemi=new THREE.HemisphereLight(0x9aaee0,0x4a4a72,1.0);scene.add(hemi);
 const moon=new THREE.DirectionalLight(0xc9d6ff,2.5);moon.castShadow=true;scene.add(moon);scene.add(moon.target);
-Object.assign(moon.shadow.camera,{left:-75,right:75,top:75,bottom:-75,near:1,far:420});moon.shadow.mapSize.set(MOBILE?1536:4096,MOBILE?1536:4096);moon.shadow.bias=-.0005;moon.shadow.normalBias=.04;
+Object.assign(moon.shadow.camera,{left:-75,right:75,top:75,bottom:-75,near:1,far:420});moon.shadow.mapSize.set(MOBILE?2048:4096,MOBILE?2048:4096);moon.shadow.bias=-.0005;moon.shadow.normalBias=.04;
 const warm=new THREE.DirectionalLight(0xe6e2f2,.5);warm.position.set(55,30,-10);scene.add(warm);
 
 /* ---- чанки ---- */
@@ -821,7 +827,7 @@ function bx(p,w,h,d,mat,x,y,z,cast=true){const m=new THREE.Mesh(UB,typeof mat===
 // ели — инстансами
 const DEPOTS=[0,1,2,3,4].map(i=>{const a=i/5*Math.PI*2+.3;return[Math.cos(a)*170,Math.sin(a)*170,a]});const SLOTR=184;const SLOTS=[];for(let i=0;i<28;i++){const a=Math.PI/4+(i%2?1:-1)*Math.ceil(i/2)*0.37;SLOTS.push([Math.cos(a)*(SLOTR+(i%3)*8),Math.sin(a)*(SLOTR+(i%3)*8),a])}
 const ADVS=[[-.42,226],[.42,226],[-.82,220],[.82,220],[-1.2,214],[0,240]].map(([o,r])=>{const a=Math.PI/4+o;return[Math.cos(a)*r,Math.sin(a)*r,a]});
-{const r=mulberry32(91),list=[];for(let i=0;i<300;i++){const a=r()*Math.PI*2,d=170+r()*210,x=Math.cos(a)*d,z=Math.sin(a)*d;
+const TREEP=[];{const r=mulberry32(91),list=TREEP;for(let i=0;i<300;i++){const a=r()*Math.PI*2,d=170+r()*210,x=Math.cos(a)*d,z=Math.sin(a)*d;
   if(DEPOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<11)||SLOTS.some(s=>Math.hypot(s[0]-x,s[1]-z)<14)||ADVS.some(s=>Math.hypot(s[0]-x,s[1]-z)<16))continue;if(Math.hypot(x+212,z+138)<14)continue;list.push([x,z,1+r()*1.2,r()])}
  const n=list.length,TI=6,tr=new THREE.InstancedMesh(UB,M(0x4a3020),n*2),gr=new THREE.InstancedMesh(UB,M(0x1d4434),n*TI*2),gr2=new THREE.InstancedMesh(UB,M(0x2b5d46),n*TI*2),tip=new THREE.InstancedMesh(UB,M(0x245040),n*TI*4),sn=new THREE.InstancedMesh(UB,snowM,n*(TI*6+1));
  const o=new THREE.Object3D();let gi=0,g2i=0,ti=0,si=0,tri=0;
@@ -1173,9 +1179,22 @@ let mS=0,mI=0,mN=0,mBus,pad=null;
 function padOn(root,t){padOff(t);const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.018,t+3);const hp_=AC.createBiquadFilter();hp_.type='highpass';hp_.frequency.value=220;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;g.connect(hp_);hp_.connect(lp);lp.connect(mus);send(lp,.6,true);
   const os=[root,root*1.498,root*2,root*2.52].map((f,i)=>{const o=AC.createOscillator();o.type='triangle';o.frequency.value=f;o.detune.value=i%2?5:-5;const og=AC.createGain();og.gain.value=i===3?.35:1;o.connect(og);og.connect(g);o.start(t);return o});pad={g,os}}
 function padOff(t){if(!pad)return;const p=pad;pad=null;p.g.gain.cancelScheduledValues(t);p.g.gain.setValueAtTime(p.g.gain.value,t);p.g.gain.linearRampToValueAtTime(0,t+2.5);p.os.forEach(o=>o.stop(t+2.6))}
-function startMusic(){mBus=AC.createBiquadFilter();mBus.type='lowpass';mBus.frequency.value=3400;mBus.connect(mus);mS=Math.floor(Math.random()*SP.length);mN=AC.currentTime+1.5;padOn(SP[mS].root,AC.currentTime+.5);
-  setInterval(()=>{if(AC.state!=='running')return;if(mN<AC.currentTime)mN=AC.currentTime+.1;while(mN<AC.currentTime+.3){const s=SP[mS],nt=s.notes[mI];tone(nt[0],mN,.05,1.9,mBus);mN+=nt[1]*s.t;mI++;
-    if(mI>=s.notes.length){mI=0;mS=(mS+1)%SP.length;mN+=3.5;padOn(SP[mS].root,mN-1.5)}}},70)}
+/* музыка как в старом Майнкрафте: пьеса — долгая тишина — пьеса. Колядки чередуются со спокойным «пианино» */
+const CALMK=[[0,2,4,7,9],[0,2,3,7,8],[0,3,5,7,10],[0,2,4,7,11]];
+function calmPiece(){const roots=[130.81,146.83,174.61,196,220],root=roots[Math.floor(Math.random()*roots.length)],sc=CALMK[Math.floor(Math.random()*CALMK.length)];
+  const deg=d=>{const o=Math.floor(d/5),i=((d%5)+5)%5;return root*2*Math.pow(2,(sc[i]+12*o)/12)};const mot=[];let d=Math.floor(Math.random()*3)+2;for(let i=0;i<5;i++){mot.push(d);d+=[-2,-1,1,1,2,0][Math.floor(Math.random()*6)];d=clamp(d,0,9)}
+  const ev=[],sp=1.05+Math.random()*.5;let t=0;const play=(m,sh,slow)=>{m.forEach((q,i)=>{const dd=q+sh;ev.push([t,deg(dd),.034]);if(i===0)ev.push([t,deg(dd-10)*.999,.03]);if(Math.random()<.25)ev.push([t+.02,deg(dd+2),.016]);t+=sp*(slow&&i===m.length-1?2.2:[1,1,.5,1.5,1][i%5])});t+=sp*1.2};
+  play(mot,0);play(mot.map((q,i)=>i===4?q-1:q),0,true);play(mot,2);play(mot.slice(0,3),1);play(mot.map(q=>q+Math.round(Math.random()*2-1)),0,true);play([mot[0],mot[2],0],0,true);
+  ev.push([t+.6,deg(0),.03],[t+.6,deg(-10),.026]);return{root,ev,len:t+5}}
+let mPlan=null;
+function startMusic(){mBus=AC.createBiquadFilter();mBus.type='lowpass';mBus.frequency.value=3400;mBus.connect(mus);mS=Math.floor(Math.random()*SP.length);
+  let mode='calm',restTo=0,calm=calmPiece(),cI=0,c0=AC.currentTime+2,nextMode='carol';padOn(calm.root,AC.currentTime+.5);
+  setInterval(()=>{if(AC.state!=='running')return;const now=AC.currentTime;
+    if(mode==='rest'){if(now>=restTo){mode=nextMode;if(mode==='calm'){calm=calmPiece();cI=0;c0=now+2.5;padOn(calm.root,now+.2)}else{mI=0;mN=now+2;padOn(SP[mS].root,now+.4)}}return}
+    if(mode==='calm'){while(cI<calm.ev.length&&c0+calm.ev[cI][0]<now+.3){const e=calm.ev[cI];tone(e[1],Math.max(now,c0+e[0]),e[2],3.6,mBus);cI++}
+      if(cI>=calm.ev.length&&now>c0+calm.len){padOff(now);mode='rest';restTo=now+60+Math.random()*80;nextMode=Math.random()<.55?'carol':'calm'}return}
+    if(mN<now)mN=now+.1;while(mN<now+.3){const s=SP[mS],nt=s.notes[mI];tone(nt[0],mN,.05,1.9,mBus);mN+=nt[1]*s.t;mI++;
+      if(mI>=s.notes.length){mI=0;mS=(mS+1)%SP.length;padOff(mN);mode='rest';restTo=mN+50+Math.random()*70;nextMode='calm';break}}},70)}
 
 /* ================= МНОЖИТЕЛИ ================= */
 const nowS=()=>Date.now()/1000;
@@ -1219,8 +1238,11 @@ function makeElf(){const g=new THREE.Group(),body=new THREE.Group();g.add(body);
   g.traverse(o=>{if(o.isMesh)o.castShadow=true});g.scale.setScalar(1.45);scene.add(g);return{g,body,head,hat,tip,L:Lg,R:Rg,AL,AR,sh}}
 const elves=[];
 function syncElves(){while(elves.length<L('elves')){const m=makeElfOf(elfTier());const a=Math.random()*6.28,r=20+Math.random()*30;const e={m,x:Math.cos(a)*r,z:Math.sin(a)*r,y:0,state:'walk',t:0,strokes:0,phase:Math.random()*5,yaw:0,cheer:0,tier:elfTier()};e.y=groundY(e.x,e.z);elfTarget(e);elves.push(e)}}
-function elfTarget(e){const fx=lastDig?lastDig.x:CAM.target.x,fz=lastDig?lastDig.z:CAM.target.z;for(let k=0;k<30;k++){const a=Math.random()*6.28,r=5+Math.random()*18,x=clamp(fx+Math.cos(a)*r,-140,140),z=clamp(fz+Math.sin(a)*r,-140,140);if(groundY(x,z)>BASE+1&&Math.hypot(x,z)<DIG_R-2){const vx=clamp(toVX(x),0,NX-1),vz=clamp(toVZ(z),0,NZ-1),tt=vox[id(vx,top[vz*NX+vx]-1,vz)];if((ELF_REQ[tt]||0)>elfTier()&&k<29)continue;e.tx=x;e.tz=z;break}}e.state='walk';e.strokes=5+Math.floor(Math.random()*4);setLoad(e,false)}
-function updElves(dt,t){const sk=1+.12*L('skill');refreshElves();const idle=performance.now()/1000-lastStrokeT>30;for(const e of elves){const m=e.m;e.phase+=dt;
+function elfTarget(e){const fx=lastDig?lastDig.x:CAM.target.x,fz=lastDig?lastDig.z:CAM.target.z;for(let k=0;k<30;k++){const a=Math.random()*6.28,r=5+Math.random()*18,x=clamp(fx+Math.cos(a)*r,-140,140),z=clamp(fz+Math.sin(a)*r,-140,140);if(groundY(x,z)>BASE+1&&Math.hypot(x,z)<DIG_R-2){const vx=clamp(toVX(x),0,NX-1),vz=clamp(toVZ(z),0,NZ-1),tt=vox[id(vx,top[vz*NX+vx]-1,vz)];if((ELF_REQ[tt]||0)>elfTier()&&k<29)continue;if(k<24&&elves.some(o=>o!==e&&o.tx!=null&&Math.hypot(o.tx-x,o.tz-z)<elfRad(o)+elfRad(e)+1.2))continue;e.tx=x;e.tz=z;break}}e.state='walk';e.strokes=5+Math.floor(Math.random()*4);setLoad(e,false)}
+function elfRad(e){return e.m&&e.m.veh?1.3+.28*(e.m.tier||0):.55}
+function sepElves(dt){const n=elves.length,k=Math.min(1,dt*10);for(let i=0;i<n;i++){const a=elves[i];if(a.state==='rest')continue;for(let j=i+1;j<n;j++){const b=elves[j];if(b.state==='rest')continue;let dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);const r=elfRad(a)+elfRad(b);if(d>=r)continue;if(d<1e-3){dx=Math.cos(i+j);dz=Math.sin(i+j);d=1}
+    const push=(r-d)*.5*k,ux=dx/d,uz=dz/d,wa=a.state==='dig'?.35:1,wb=b.state==='dig'?.35:1;a.x-=ux*push*wa;a.z-=uz*push*wa;b.x+=ux*push*wb;b.z+=uz*push*wb}}}
+function updElves(dt,t){const sk=1+.12*L('skill');refreshElves();sepElves(dt);const idle=performance.now()/1000-lastStrokeT>30;for(const e of elves){const m=e.m;e.phase+=dt;
   if(idle&&e.state!=='rest'){e.state='rest';e.t=0}if(!idle&&e.state==='rest')elfTarget(e);
   if(m.veh){if(e.cheer>0)e.cheer=0;if(e.state==='rest'){m.wheels.forEach(()=>{});e.y+=(groundY(e.x,e.z)-e.y)*Math.min(1,dt*8);m.g.position.set(e.x,e.y,e.z);if(m.rotor)m.rotor.rotation.x-=dt*1.5;continue}updVehicle(e,dt,t,sk);continue}
   if(e.state==='rest'&&!(e.cheer>0)){m.L.rotation.x=m.R.rotation.x=0;m.AL.rotation.x=m.AR.rotation.x=-.15;m.AL.rotation.z=m.AR.rotation.z=0;m.body.rotation.x=0;m.body.position.y=Math.abs(Math.sin(e.phase*1.6))*.03;m.head.rotation.y=Math.sin(e.phase*.8)*.6;if(m.blower)m.blower.rotor.rotation.x=0;
@@ -1343,7 +1365,12 @@ DEPOTS.forEach((_,i)=>makeDepot(i));
 /* ---- имена эльфов: табличка над головой, нажать — переименовать ---- */
 const ELF_NAMES=['Пуговка','Шишка','Бубенчик','Пряник','Искорка','Валенок','Мандаринка','Леденец','Сосулька','Ёлкин','Звёздочка','Варежка','Колокольчик','Снежик','Тимоша','Кокоша'];
 function elfName(i){S.elfN=S.elfN||[];const n=ELF_NAMES.length;return S.elfN[i]||ELF_NAMES[i%n]+(i>=n?' '+(1+Math.floor(i/n)):'')}
-let elfEditing=false;
+let elfEditing=false;const ncQ=[];let ncCur=-1;
+function askElfName(i){if(i<0)return;if(ncCur>=0){ncQ.push(i);return}ncCur=i;const inp=$('#ncIn');inp.value=elfName(i);$('#nameCard').classList.add('on');setTimeout(()=>{try{inp.focus({preventScroll:true});inp.select()}catch(e){}},60)}
+function ncDone(save){if(ncCur<0)return;const i=ncCur,v=$('#ncIn').value.trim();if(save&&v){S.elfN=S.elfN||[];S.elfN[i]=v}$('#nameCard').classList.remove('on');$('#ncIn').blur();ncCur=-1;
+  banner('🧝','<b>'+elfName(i).replace(/[<>&]/g,'')+'</b> взялся за лопату');const e=elves[i];if(e)e.cheer=1;if(ncQ.length)setTimeout(()=>askElfName(ncQ.shift()),350)}
+$('#ncOk').onclick=()=>ncDone(true);$('#ncDice').onclick=()=>{const used=new Set(elves.map((_,j)=>elfName(j)));const free=ELF_NAMES.filter(n=>!used.has(n));const L2=free.length?free:ELF_NAMES;$('#ncIn').value=L2[Math.floor(Math.random()*L2.length)]};
+$('#ncIn').addEventListener('keydown',k=>{k.stopPropagation();if(k.key==='Enter')ncDone(true);if(k.key==='Escape')ncDone(false)});
 function elfTag(e,i){if(e.tag)return e.tag;const d=document.createElement('div');d.className='elfTag';d.textContent=elfName(i);d.style.display='none';$('#bubbles').appendChild(d);e.tag=d;
   d.onpointerdown=ev=>ev.stopPropagation();
   d.onclick=ev=>{ev.stopPropagation();if(d.querySelector('input'))return;elfEditing=true;const inp=document.createElement('input');inp.maxLength=18;inp.value=elfName(i);d.textContent='';d.appendChild(inp);inp.focus();inp.select();
@@ -1352,6 +1379,41 @@ function elfTag(e,i){if(e.tag)return e.tag;const d=document.createElement('div')
 function updElfTags(){const show=started&&!tour&&!modalOpen&&CAM.zoom>=.75;elves.forEach((e,i)=>{const d=elfTag(e,i);if(!show){if(!d.querySelector('input'))d.style.display='none';return}
   const sc=toScreen(e.x,e.y+(e.m&&e.m.veh?4.6:2.9),e.z);const on=sc.in&&sc.x>-40&&sc.y>-20&&sc.x<innerWidth+40&&sc.y<innerHeight+20;d.style.display=on?'block':'none';if(on){d.style.transform=`translate(${sc.x}px,${sc.y}px) translate(-50%,-100%)`;if(!d.querySelector('input')&&d.textContent!==elfName(i))d.textContent=elfName(i)}});
   if(show&&elves.length)hint('elfname','🧝','У эльфов есть имена','Над каждым эльфом — табличка с именем. Нажмите на неё, чтобы назвать эльфа по-своему.')}
+
+
+/* ================= ДУША: далёкие звуки, лиса, снег с веток. Без слов ================= */
+const farS={next:nowS()+50+Math.random()*40};
+function farSound(){if(!AC||AC.state!=='running'||!S.sound)return;const t=AC.currentTime+.05,pan=AC.createStereoPanner?AC.createStereoPanner():null,g=AC.createGain();g.gain.value=1;if(pan){pan.pan.value=Math.random()*1.6-.8;g.connect(pan);pan.connect(sfx);send(pan,1.3,false)}else{g.connect(sfx);send(g,1.3,false)}
+  const k=Math.floor(Math.random()*5);
+  const osc=(type,f0,f1,t0,dur,v,lp)=>{const o=AC.createOscillator(),og=AC.createGain(),fl=AC.createBiquadFilter();fl.type='lowpass';fl.frequency.value=lp||1200;o.type=type;o.frequency.setValueAtTime(f0,t0);o.frequency.linearRampToValueAtTime(f1,t0+dur);og.gain.setValueAtTime(0,t0);og.gain.linearRampToValueAtTime(v,t0+dur*.25);og.gain.linearRampToValueAtTime(0,t0+dur);o.connect(fl);fl.connect(og);og.connect(g);o.start(t0);o.stop(t0+dur+.05)};
+  if(k===0){osc('sine',410,370,t,.38,.05);osc('sine',400,360,t+.62,.32,.04);osc('sine',420,350,t+1.2,.9,.05)}            // сова
+  else if(k===1){[196,196*2.41,196*3.02].forEach((f,i)=>tone(f,t,[.02,.008,.006][i],5,g))}                                   // далёкий колокол
+  else if(k===2){osc('sawtooth',311,305,t,1.7,.018,650);osc('sawtooth',370,364,t,1.7,.015,650)}                              // поезд за лесом
+  else if(k===3){const sc=[1568,1760,2093,2349,2637];for(let i=0;i<4;i++)tone(sc[Math.floor(Math.random()*5)],t+i*(.25+Math.random()*.3),.01,2.4,g)} // колокольчики на ветру
+  else{osc('sawtooth',92,128,t,.9,.012,420);osc('sawtooth',128,96,t+.8,.7,.009,420)}}                                         // скрип старой ели
+const FOX={g:null,on:false,next:nowS()+150+Math.random()*120};const fpM=M(0xb9c4dc);const FP=[];for(let i=0;i<70;i++){const m=bx(scene,.22,.04,.3,fpM,0,-50,0,false);m.receiveShadow=true;m.visible=false;FP.push({m,t:0})}let fpI=0;
+function makeFox(){const g=new THREE.Group(),o=M(0xd8682c),w=M(0xf4efe6),d=M(0x2a2024);const body=new THREE.Group();g.add(body);
+  bx(body,.62,.52,1.25,o,0,.78,0);bx(body,.5,.36,.5,w,0,.66,.52);const head=new THREE.Group();head.position.set(0,1.12,.72);body.add(head);bx(head,.5,.42,.5,o,0,0,0);bx(head,.26,.2,.32,w,0,-.08,.32);bx(head,.1,.08,.08,d,0,-.02,.5);
+  for(const s of [-1,1]){bx(head,.14,.24,.08,o,s*.15,.3,-.04);bx(head,.08,.08,.04,d,s*.13,.06,.26)}
+  const tail=new THREE.Group();tail.position.set(0,.9,-.6);body.add(tail);bx(tail,.34,.34,.9,o,0,.05,-.42);bx(tail,.3,.3,.3,w,0,.08,-.95);tail.rotation.x=.5;
+  const legs=[];for(const [x,z] of [[-.2,.42],[.2,.42],[-.2,-.42],[.2,-.42]]){const l=new THREE.Group();l.position.set(x,.56,z);body.add(l);bx(l,.14,.56,.14,d,0,-.28,0);legs.push(l)}
+  g.scale.setScalar(1.25);scene.add(g);return{g,body,head,tail,legs}}
+function updVibe(dt,t){const n=nowS();
+  if(n>farS.next){farS.next=n+70+Math.random()*90;farSound()}
+  // снег срывается с веток, когда дует ветер (или просто так, изредка)
+  if(Math.random()<dt*(.18+gust*.9)&&TREEP.length){const vw=VH0*PORT()/CAM.zoom;let tp=null;for(let k=0;k<8;k++){const c=TREEP[Math.floor(Math.random()*TREEP.length)];if(Math.hypot(c[0]-CAM.target.x,c[1]-CAM.target.z)<vw*.8){tp=c;break}}
+    if(tp){const y=BASE+(3+Math.random()*4)*tp[2]*1.4;for(let i=0;i<14;i++)spawn({x:tp[0]+(Math.random()-.5)*2.4*tp[2],y:y+Math.random(),z:tp[1]+(Math.random()-.5)*2.4*tp[2],vx:(Math.random()-.5)*.8+Math.sin(windDir)*1.2,vy:-.5-Math.random(),vz:(Math.random()-.5)*.8+Math.cos(windDir)*1.2,g:3.5,drag:.9,life:1.6+Math.random(),s:3+Math.random()*3,a:.85,c:WHITE,ground:true})}}
+  // лиса изредка перебегает поле, оставляя следы
+  if(!FOX.on&&n>FOX.next&&!modalOpen&&!tour){if(!FOX.g)Object.assign(FOX,makeFox());const vw=VH0*PORT()/CAM.zoom,a=CAM.ang+Math.PI/2+(Math.random()-.5)*.6,dir=Math.random()<.5?1:-1,off=(Math.random()-.3)*vw*.25;
+    const cx=CAM.target.x+Math.sin(CAM.ang)*off,cz=CAM.target.z+Math.cos(CAM.ang)*off,L2=vw*.75;FOX.ax=cx-Math.sin(a)*L2*dir;FOX.az=cz-Math.cos(a)*L2*dir;FOX.bx=cx+Math.sin(a)*L2*dir;FOX.bz=cz+Math.cos(a)*L2*dir;
+    FOX.u=0;FOX.stop=.35+Math.random()*.3;FOX.sat=0;FOX.on=true;FOX.g.visible=true;FOX.len=Math.hypot(FOX.bx-FOX.ax,FOX.bz-FOX.az);FOX.fpT=0;FOX.side=1}
+  if(FOX.on){const F=FOX;let mv=true;if(F.u>=F.stop&&F.sat<3.2){F.sat+=dt;mv=false}if(mv)F.u+=dt*(F.sat>0?6.5:3.6)/F.len;
+    const x=F.ax+(F.bx-F.ax)*F.u,z=F.az+(F.bz-F.az)*F.u,yaw=Math.atan2(F.bx-F.ax,F.bz-F.az);F.g.position.set(x,groundY(x,z),z);F.g.rotation.y=yaw;const ph=t*(F.sat>0&&mv?16:11);
+    F.legs.forEach((l,i)=>l.rotation.x=mv?Math.sin(ph+(i%2?Math.PI:0)+(i>1?Math.PI/2:0))*.7:0);F.body.position.y=mv?Math.abs(Math.sin(ph))*.08:0;F.tail.rotation.y=Math.sin(t*3)*.25;
+    if(!mv){const cy=CAM.ang-yaw;F.head.rotation.y+=(Math.atan2(Math.sin(cy),Math.cos(cy))*.8-F.head.rotation.y)*Math.min(1,dt*4);F.body.rotation.x=-.12}else{F.head.rotation.y*=.9;F.body.rotation.x=0}
+    if(mv){F.fpT+=dt;if(F.fpT>.16){F.fpT=0;F.side*=-1;const f=FP[fpI++%FP.length],px=x+Math.cos(yaw)*.22*F.side,pz=z-Math.sin(yaw)*.22*F.side,gy=groundY(px,pz);if(gy>BASE-1){f.m.position.set(px,gy+.025,pz);f.m.rotation.y=yaw;f.m.visible=true;f.t=40;f.gy=gy}}}
+    if(F.u>=1){F.on=false;F.g.visible=false;FOX.next=n+200+Math.random()*220}}
+  for(const f of FP){if(!f.m.visible)continue;f.t-=dt;const gy=groundY(f.m.position.x,f.m.position.z);if(f.t<=0||Math.abs(gy-f.gy)>.3)f.m.visible=false;else f.m.scale.setScalar(Math.min(1,f.t/6))}}
 
 /* ================= СНЕЖОК ================= */
 /* ---- модель питомца из настроек ---- */
@@ -1511,22 +1573,23 @@ function pickVoxel(){ray.setFromCamera(ndc,cam);const o=ray.ray.origin,d=ray.ray
 
 /* ================= ВВОД ================= */
 function setNdc(e){ptr.x=e.clientX;ptr.y=e.clientY;ndc.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1)}
-const touches=new Map();let pinch0=0,zoom0=1;
+const touches=new Map();let pinch0=0,zoom0=1,rot0=0,ang0=0,touchT=0;
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('pointerdown',e=>{initAudio();setNdc(e);ptr.in=true;canvas.setPointerCapture(e.pointerId);
   if(tour){if(tour.t>1.2)endTour();return}
   if(fin&&fin.step<7)return;
   if(sleigh&&sleigh.active&&!sleigh.caught){const s=toScreen(sleigh.g.position.x,sleigh.g.position.y,sleigh.g.position.z);if(Math.hypot(s.x-e.clientX,s.y-e.clientY)<110){catchSleigh();return}}
-  if(e.pointerType==='touch'){touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2){ptr.down=false;const [a,b]=[...touches.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=CAM.tZoom;ptr.lx=(a.x+b.x)/2;ptr.ly=(a.y+b.y)/2;ptr.pan=true;return}}
+  if(e.pointerType==='touch'){touches.set(e.pointerId,{x:e.clientX,y:e.clientY});clearTimeout(touchT);if(touches.size>=2){ptr.down=false;const [a,b]=[...touches.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=CAM.tZoom;rot0=Math.atan2(b.y-a.y,b.x-a.x);ang0=CAM.tAng;ptr.lx=(a.x+b.x)/2;ptr.ly=(a.y+b.y)/2;ptr.pan=true;return}
+    if(started&&!modalOpen){touchT=setTimeout(()=>{if(touches.size===1&&!ptr.pan){ptr.down=true;hasHit=!!(hit=pickVoxel());if(hasHit&&!stroke)startStroke()}},90)}return}
   if(e.button===2||e.button===1){ptr.pan=true;ptr.lx=e.clientX;ptr.ly=e.clientY;return}
   if(started&&!modalOpen){ptr.down=true;hasHit=!!(hit=pickVoxel());if(hasHit&&!stroke)startStroke()}});
 canvas.addEventListener('pointermove',e=>{setNdc(e);ptr.in=true;
-  if(e.pointerType==='touch'&&touches.size===2&&touches.has(e.pointerId)){touches.set(e.pointerId,{x:e.clientX,y:e.clientY});const [a,b]=[...touches.values()];const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;panBy(mx-ptr.lx,my-ptr.ly);ptr.lx=mx;ptr.ly=my;CAM.tZoom=clamp(zoom0*Math.hypot(a.x-b.x,a.y-b.y)/pinch0,.3,2);return}
+  if(e.pointerType==='touch'&&touches.size===2&&touches.has(e.pointerId)){touches.set(e.pointerId,{x:e.clientX,y:e.clientY});const [a,b]=[...touches.values()];const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;panBy(mx-ptr.lx,my-ptr.ly);ptr.lx=mx;ptr.ly=my;CAM.tZoom=clamp(zoom0*Math.hypot(a.x-b.x,a.y-b.y)/pinch0,.3,2);let dr=Math.atan2(b.y-a.y,b.x-a.x)-rot0;dr=Math.atan2(Math.sin(dr),Math.cos(dr));if(Math.abs(dr)>.12)CAM.tAng=ang0-(dr-Math.sign(dr)*.12);return}
   if(ptr.pan&&e.pointerType!=='touch'){panBy(e.clientX-ptr.lx,e.clientY-ptr.ly);ptr.lx=e.clientX;ptr.ly=e.clientY}});
-const up=e=>{touches.delete(e.pointerId);if(touches.size<2)ptr.pan=false;ptr.down=false;if(e.pointerType==='touch'&&!touches.size)ptr.in=false};
+const up=e=>{touches.delete(e.pointerId);clearTimeout(touchT);if(touches.size<2)ptr.pan=false;ptr.down=false;if(e.pointerType==='touch'&&!touches.size)ptr.in=false};
 canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('pointerleave',()=>{if(!ptr.down)ptr.in=false});
 canvas.addEventListener('wheel',e=>{e.preventDefault();if(tour)return;CAM.tZoom=clamp(CAM.tZoom*Math.exp(-e.deltaY*.0012),.2,2)},{passive:false});
-function panBy(dx,dy){const wpp=(VH0/CAM.zoom)/innerHeight,a=CAM.ang;const rx=Math.cos(a),rz=-Math.sin(a),fx=-Math.sin(a),fz=-Math.cos(a),k=1/Math.sin(CAM.elev);
+function panBy(dx,dy){const wpp=(VH0*PORT()/CAM.zoom)/innerHeight,a=CAM.ang;const rx=Math.cos(a),rz=-Math.sin(a),fx=-Math.sin(a),fz=-Math.cos(a),k=1/Math.sin(CAM.elev);
   CAM.tTarget.x+=(-dx*rx+dy*fx*k)*wpp;CAM.tTarget.z+=(-dx*rz+dy*fz*k)*wpp;const l=Math.hypot(CAM.tTarget.x,CAM.tTarget.z);if(l>168){CAM.tTarget.x*=168/l;CAM.tTarget.z*=168/l}}
 const keys={};
 addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyQ')rot(-1);if(e.code==='KeyE')rot(1);if(e.code==='Escape'){if(room&&room.on)endRoom();else if(tour)endTour();else if(modalOpen)closeModals();else if(started)openMenu()}if(e.code==='Space'&&started&&!modalOpen){e.preventDefault();toggleAuto()}});
@@ -1699,8 +1762,8 @@ function makeSleigh(){const g=new THREE.Group();const red=0xb3262a;
     const legs=[];for(const [x,z] of [[-.2,-.5],[.2,-.5],[-.2,.5],[.2,.5]])legs.push(bx(d,.14,.6,.14,0x5a3a22,x,-.5,z));deer.push(legs)}
   g.traverse(o=>{if(o.isMesh)o.castShadow=true});g.scale.setScalar(1.6);scene.add(g);return{g,deer,active:false,t:0}}
 function launchSleigh(){if(!sleigh)sleigh=makeSleigh();const s=sleigh;s.active=true;s.caught=false;s.t=0;s.dur=11;s.g.visible=true;
-  const rx=Math.cos(CAM.ang),rz=-Math.sin(CAM.ang),span=(VH0/CAM.zoom)*innerWidth/innerHeight*.7;
-  s.a=new THREE.Vector3(CAM.target.x-rx*span,0,CAM.target.z-rz*span);s.b=new THREE.Vector3(CAM.target.x+rx*span,0,CAM.target.z+rz*span);s.h=CAM.target.y+(VH0/CAM.zoom)*.28;{let mx=0;for(let i=0;i<=32;i++){const q=new THREE.Vector3().lerpVectors(s.a,s.b,i/32);for(const o of [-4,0,4])mx=Math.max(mx,groundY(q.x+o,q.z+o))}s.h=Math.max(s.h,mx+12)}
+  const rx=Math.cos(CAM.ang),rz=-Math.sin(CAM.ang),span=(VH0*PORT()/CAM.zoom)*innerWidth/innerHeight*.7;
+  s.a=new THREE.Vector3(CAM.target.x-rx*span,0,CAM.target.z-rz*span);s.b=new THREE.Vector3(CAM.target.x+rx*span,0,CAM.target.z+rz*span);s.h=CAM.target.y+(VH0*PORT()/CAM.zoom)*.28;{let mx=0;for(let i=0;i<=32;i++){const q=new THREE.Vector3().lerpVectors(s.a,s.b,i/32);for(const o of [-4,0,4])mx=Math.max(mx,groundY(q.x+o,q.z+o))}s.h=Math.max(s.h,mx+12)}
   bells();banner('🛷','Сани Деда Мороза! <b>Нажмите на них</b>, пока не улетели')}
 function updSleigh(dt,t){if(!sleigh||!sleigh.active)return;const s=sleigh;s.t+=dt;const p=s.t/s.dur;if(p>=1){s.active=false;s.g.visible=false;sleighBub.style.display='none';return}
   const pos=new THREE.Vector3().lerpVectors(s.a,s.b,p);pos.y=s.h+Math.sin(p*Math.PI*3)*1.2;s.g.position.copy(pos);s.g.lookAt(s.b.x,pos.y,s.b.z);
@@ -1768,7 +1831,7 @@ function updShop(){document.querySelectorAll('[data-land]').forEach(b=>b.disable
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{shopTab=t.dataset.tab;if(shopTab==='land')hint('land','🏘️','Окрестности','Здесь за снежинки можно обустроить мир вокруг сугроба. Каждая ступень что-то строит и навсегда даёт +2% снежинок.');document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));tick();renderShop()});
 $('#shopList').addEventListener('click',e=>{const lb=e.target.closest('[data-land]');if(lb&&!lb.disabled){const l=LMAP[lb.dataset.land],c=+lb.dataset.cost;if(S.flakes<c)return;S.flakes-=c;shown=Math.min(shown,S.flakes);S.land[l.id]=(S.land[l.id]||0)+1;l.build(S.land[l.id]);if(l.id==='lake'&&S.land.lake===2)hint('fish','🎣','Подлёдная рыбалка','Подведите камеру к домику на озере и нажмите «Порыбачить». Когда клюнет — быстро жмите «Подсечь!».');if(l.id==='obs'&&S.land.obs===2)hint('scope','🔭','Телескоп','Приблизьте камеру к обсерватории и посмотрите в телескоп.');if(l.id==='bell'&&S.land.bell===2)hint('bellh','🔔','Колокол','У колокольни можно позвонить в колокол.');chime();banner(l.e,`${l.n}: <b>${l.st[S.land[l.id]-1]}</b>`);renderShop();save();return}const b=e.target.closest('[data-buy]');if(!b||b.disabled)return;const c=+b.dataset.cost;if(S.flakes<c)return;if(b.dataset.buy==='tool'&&!toolOk(S.tool+1))return;S.flakes-=c;if(b.dataset.buy==='tool'){S.cry-=(TREQ[S.tool+1]||[0,0])[1]}shown=Math.min(shown,S.flakes);const k=b.dataset.buy;
   if(k==='tool'){S.tool++;equip();banner('⛏',`Новый инструмент: <b>${TOOLS[S.tool].n}</b>`);const p=shovel.position;for(let i=0;i<30;i++){const a=Math.random()*6.28;spawn({x:p.x,y:p.y+1,z:p.z,vx:Math.cos(a)*3,vy:2+Math.random()*3,vz:Math.sin(a)*3,g:2,drag:1.5,life:1.2,s:4,a:1,fade:'sin',c:GOLD})}chime()}
-  else{S.up[k]++;if(k==='elves'){syncElves();banner('🧝','Новый <b>эльф</b> взялся за лопату');hint('elves','🧝','Эльфы','Эльфы копают рядом с вами, пока копаете вы. Что именно они осилят, зависит от «Эльфийской сноровки».')}coin()}
+  else{S.up[k]++;if(k==='elves'){syncElves();askElfName(elves.length-1);hint('elves','🧝','Эльфы','Эльфы копают рядом с вами, пока копаете вы. Что именно они осилят, зависит от «Эльфийской сноровки».')}coin()}
   hlKey='';renderShop();save();tutStep('buy')});
 function toggleShop(){$('#shop').classList.toggle('closed');tick();if(!$('#shop').classList.contains('closed'))renderShop()}
 $('#dShop').onclick=$('#shopX').onclick=toggleShop;
@@ -2510,9 +2573,12 @@ HOTD.fish.b.addEventListener('click',e=>{if(fishSt&&fishSt.st==='bite'){e.stopIm
   const FI=[['Окунь',1.5],['Щука',3],['Налим',2.5],['Ёрш',1],['Золотая рыбка',12]],r=Math.random(),f=r<.03?FI[4]:FI[Math.floor(Math.random()*4)];const amt=giveFl(f[1]);S.inv.food+=1;S.fish=(S.fish||0)+1;burst(e.clientX,e.clientY);fanfare(f[0]==='Золотая рыбка'?'r':'c');banner('🎣',`${f[0]}! +${fmt(amt)} ❄️ и угощение питомцу`);save()}},true);
 
 /* ================= POST ================= */
-const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,cam));
+const composer=new EffectComposer(renderer,new THREE.WebGLRenderTarget(innerWidth*dpr,innerHeight*dpr,{type:THREE.HalfFloatType,samples:4}));composer.addPass(new RenderPass(scene,cam));
 const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth*(MOBILE?.5:1),innerHeight*(MOBILE?.5:1)),.5,.55,.88);composer.addPass(bloom);composer.addPass(new OutputPass());
-function resize(){drawSky();renderer.setSize(innerWidth,innerHeight,false);composer.setSize(innerWidth,innerHeight);placeCam()}
+function resize(){drawSky();renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight,false);composer.setPixelRatio(dpr);composer.setSize(innerWidth,innerHeight);if(MOBILE)bloom.setSize(Math.round(innerWidth*dpr*.5),Math.round(innerHeight*dpr*.5));placeCam()}
+/* адаптивное разрешение: держим плавность, повышаем чёткость, когда запас есть */
+const perf={acc:0,n:0,good:0};function perfTick(rawMs){if(document.hidden)return;perf.acc+=rawMs;perf.n++;if(perf.acc<1500)return;const fps=perf.n*1000/perf.acc;perf.acc=0;perf.n=0;
+  if(fps<47&&dpr>DPR_MIN){dpr=Math.max(DPR_MIN,dpr-.25);perf.good=0;resize()}else if(fps>58){if(++perf.good>=3&&dpr<DPR_MAX){dpr=Math.min(DPR_MAX,dpr+.25);perf.good=0;resize()}}else perf.good=0}
 addEventListener('resize',resize);resize();
 
 /* ================= ЦИКЛ ================= */
@@ -2520,7 +2586,7 @@ let started=false,last=performance.now(),uiAcc=0,gust=0,windDir=0,ot=0,physAcc=0
 const hintSpr=[];{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.25,'rgba(255,220,160,.5)');r.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=r;g.fillRect(0,0,128,128);
   const tx=new THREE.CanvasTexture(c);for(let i=0;i<40;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,color:0xffd28a,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));s.visible=false;scene.add(s);hintSpr.push(s)}}
 function frame(now){try{frameInner(now)}catch(e){console.warn(e)}requestAnimationFrame(frame)}
-function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
+let shF=0;function frameInner(now){perfTick(now-last);if(MOBILE&&(shF++&1)===0)renderer.shadowMap.needsUpdate=true;const rdt=Math.min(.05,(now-last)/1000);last=now;
   if(room&&room.on){updRoom(rdt);const rp=composer.passes[0];rp.scene=room.sc;rp.camera=room.cam;composer.render();rp.scene=scene;rp.camera=cam;return}slow=Math.max(0,slow-rdt);const dt=rdt*(slow>0?.35:1);ot+=rdt;const t=ot;U.time.value=t;
   if(!started){CAM.tAng+=rdt*.06;CAM.tZoom=Math.min(.22,CAM.tZoom+rdt*.012)}
   // высота камеры следует за поверхностью
@@ -2528,7 +2594,7 @@ function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
   CAM.ang+=(CAM.tAng-CAM.ang)*Math.min(1,rdt*5);CAM.zoom+=(CAM.tZoom-CAM.zoom)*Math.min(1,rdt*(tour?2.5:6));CAM.target.lerp(CAM.tTarget,Math.min(1,rdt*(tour?2.5:6)));CAM.shake=Math.max(0,CAM.shake-rdt*1.2);
   const k=420*rdt/CAM.zoom;if(!tour){if(keys.KeyW||keys.ArrowUp)panBy(0,k);if(keys.KeyS||keys.ArrowDown)panBy(0,-k);if(keys.KeyA||keys.ArrowLeft)panBy(k,0);if(keys.KeyD||keys.ArrowRight)panBy(-k,0)}
   placeCam();
-  {const half=clamp(VH0/CAM.zoom*Math.max(1,innerWidth/innerHeight)*1.05,40,560),sh=moon.shadow.camera;if(Math.abs(sh.right-half)>half*.08){sh.left=-half;sh.right=half;sh.top=half;sh.bottom=-half;sh.far=half*2+500;sh.updateProjectionMatrix();moon.shadow.bias=-.0003*(half/75);moon.shadow.normalBias=.04*Math.max(1,half/75)}
+  {const half=clamp(VH0*PORT()/CAM.zoom*Math.max(1,innerWidth/innerHeight)*1.05,40,560),sh=moon.shadow.camera;if(Math.abs(sh.right-half)>half*.08){sh.left=-half;sh.right=half;sh.top=half;sh.bottom=-half;sh.far=half*2+500;sh.updateProjectionMatrix();moon.shadow.bias=-.0003*(half/75);moon.shadow.normalBias=.04*Math.max(1,half/75)}
    const tx=Math.round(CAM.target.x/ (half/512))*(half/512),tz=Math.round(CAM.target.z/(half/512))*(half/512);moon.target.position.set(tx,CAM.target.y,tz);moon.position.set(tx-30*(1+half/150),CAM.target.y+110+half*.6,tz+80*(1+half/150))}
   const dpr=renderer.getPixelRatio();const bl=nowS()<blizzardUntil;
   snowL.forEach((m,i)=>{m.uniforms.uScale.value=dpr*Math.sqrt(CAM.zoom);m.uniforms.uC.value.copy(CAM.target);m.uniforms.uOp.value+=((bl?Math.min(1,SNOW_OP[i]*2.2):SNOW_OP[i])-m.uniforms.uOp.value)*rdt});
@@ -2540,7 +2606,7 @@ function frameInner(now){const rdt=Math.min(.05,(now-last)/1000);last=now;
   if(started&&!modalOpen){physAcc+=rdt;while(physAcc>=.05){physAcc-=.05;landPuffs=0;physTick()}}if(started)flushDirty(10);if(started&&!modalOpen)S.playSec=(S.playSec||0)+rdt;
   updElfTags();if(started&&!modalOpen){updElves(dt,t);updPet(dt,t);const P=S.pet,dec=rdt/11*(1-.05*L('boots'));P.food=Math.max(0,P.food-dec);P.warm=Math.max(0,P.warm-dec*1.1);P.joy=Math.max(0,P.joy-dec*.9);playCd=Math.max(0,playCd-rdt)}
   else if(!started)updPet(dt,t);
-  if(started)updTour(rdt);if(started&&!modalOpen){updEvents(dt,t);updMyst(dt,t);updLand(dt,t);updPetPerks(dt,t);pumpH()}if(started)updHot(dt);if(started&&!modalOpen){updResidents(dt,t);updGolem(dt,t);updBirds(dt,t);updSleigh(dt,t);updDrops(dt);updRockets(dt);updFinale(rdt,t);
+  if(started)updTour(rdt);if(started&&!modalOpen){updEvents(dt,t);updMyst(dt,t);updLand(dt,t);updPetPerks(dt,t);pumpH()}if(started)updHot(dt);if(started&&!modalOpen){updResidents(dt,t);updGolem(dt,t);updBirds(dt,t);updVibe(dt,t);updSleigh(dt,t);updDrops(dt);updRockets(dt);updFinale(rdt,t);
     const ns=nowS();if(ns>nextSleigh&&!modalOpen&&!tour){nextSleigh=ns+(S.relics.sleigh?70:120)+Math.random()*(S.relics.sleigh?30:90);launchSleigh()}
     if(ns>nextBlizz){nextBlizz=ns+300+Math.random()*180;startBlizzard(40)}
     if(S.decos.includes('fireworks')&&ns>nextFw){nextFw=ns+10+Math.random()*12;const s=SLOTS[DMAP.fireworks.slot];for(let i=0;i<1+Math.floor(Math.random()*3);i++)setTimeout(()=>firework(s[0]+(Math.random()-.5)*8,s[1]+(Math.random()-.5)*8),i*400)}}
@@ -2596,7 +2662,7 @@ $('#start').onclick=()=>{initAudio();
   if(!hadSave&&!S.petMade){intro.classList.add('hide');openPetEditor(true,()=>{S.petMade=true;save();startRoom(()=>beginGame(true))})}else beginGame(false)};
 $('#roomGo').onclick=endRoom;$('#roomSkip').onclick=endRoom;
 requestAnimationFrame(frame);setTimeout(()=>$('#load').classList.add('hide'),200);
-window.__au=()=>[AC&&AC.state,mus&&+mus.gain.value.toFixed(2),sfx&&+sfx.gain.value.toFixed(2),S.music,S.sound];window.__note=showNote;window.__sim={digAt,tool,TOOLS,UPG,UKEYS,L,top,vox,id,toVX,toVZ,makeReward,applyReward,toolOk,TREQ,LAND,landCost,S,REQ,h0,NX,NZ,flakeMult,get gifts(){return gifts}};window.__pet={petXp,banner,hint};window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={startHaul,poke:()=>{lastStrokeT=performance.now()/1000},DEPOTS,updDepot,makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
+window.__au=()=>[AC&&AC.state,mus&&+mus.gain.value.toFixed(2),sfx&&+sfx.gain.value.toFixed(2),S.music,S.sound];window.__note=showNote;window.__sim={digAt,tool,TOOLS,UPG,UKEYS,L,top,vox,id,toVX,toVZ,makeReward,applyReward,toolOk,TREQ,LAND,landCost,S,REQ,h0,NX,NZ,flakeMult,get gifts(){return gifts}};window.__pet={petXp,banner,hint};window.__ev={EVDEF,EVS,trySpawnWanderer,get wand(){return wand},hatch};window.__room=()=>room?+room.t.toFixed(1):-1;window.__roomT=t=>{if(room)room.t=t};window.__sg={FOX,farSound,askElfName,startHaul,poke:()=>{lastStrokeT=performance.now()/1000},DEPOTS,updDepot,makeElfOf,elves,syncElves,get horo(){return horo},get snowman(){return snowman},get fin(){return fin},syncResidents,startSnowman,startHorovod,RES,DMAP,SLOTS,wsPct,WSRING,checkWorkshop,decoObj,renderAdv,setDay:d=>{S.dbgDay=d},S,gifts,digAt,findGift,CAM,launchSleigh,startBlizzard,openCase,placeDeco,startTour,get hit(){return hit},vox,active};
 </script>
 <div id="roomUI"><div class="vign"></div><p id="roomSub"></p><button class="btn" id="roomGo">Идти копать</button><button id="roomSkip">Пропустить</button></div><div id="roomFade"></div>
 </body>
